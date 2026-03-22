@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinishLine — How It Actually Works</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --card: #16161f;
+    --border: #2a2a38;
+    --brand: #6366f1;
+    --brand-light: #818cf8;
+    --calm: #22c55e;
+    --alert: #f59e0b;
+    --urgent: #ef4444;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --text4: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 780px; margin: 0 auto; padding: 60px 28px 120px; }
+
+  .hero { padding: 60px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 60px; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--brand-light); margin-bottom: 12px; }
+  h1 { font-size: 42px; font-weight: 800; line-height: 1.08; letter-spacing: -0.03em; }
+  h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  p { color: var(--text2); font-size: 15px; }
+  strong { color: var(--text); }
+  code { font-size: 12px; color: var(--brand-light); background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px; }
+
+  .tagline { font-size: 18px; color: var(--text2); margin-top: 16px; max-width: 640px; line-height: 1.5; }
+
+  /* Scene blocks */
+  .scene { margin-bottom: 48px; position: relative; padding-left: 48px; }
+  .scene::before { content: ''; position: absolute; left: 18px; top: 42px; bottom: -48px; width: 2px; background: var(--border); }
+  .scene:last-of-type::before { display: none; }
+  .scene-num { position: absolute; left: 0; top: 0; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; z-index: 1; }
+  .scene-num.green { background: rgba(34,197,94,0.15); color: var(--calm); border: 2px solid rgba(34,197,94,0.3); }
+  .scene-num.brand { background: rgba(99,102,241,0.15); color: var(--brand-light); border: 2px solid rgba(99,102,241,0.3); }
+  .scene-num.amber { background: rgba(245,158,11,0.15); color: var(--alert); border: 2px solid rgba(245,158,11,0.3); }
+  .scene-num.red { background: rgba(239,68,68,0.15); color: var(--urgent); border: 2px solid rgba(239,68,68,0.3); }
+
+  .scene-head { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+  .scene-head.green { color: var(--calm); }
+  .scene-head.brand { color: var(--brand-light); }
+  .scene-head.amber { color: var(--alert); }
+  .scene-head.red { color: var(--urgent); }
+
+  .scene h3 { font-size: 20px; margin-bottom: 10px; }
+  .scene p { font-size: 14px; margin-bottom: 10px; }
+
+  .narrator { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin: 14px 0; }
+  .narrator .who { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .narrator .who.system { color: var(--brand-light); }
+  .narrator .who.engine { color: var(--calm); }
+  .narrator .who.rider { color: var(--alert); }
+  .narrator .who.human { color: var(--urgent); }
+  .narrator .who.sla { color: var(--urgent); }
+  .narrator .who.config { color: var(--brand-light); }
+  .narrator p { font-size: 13px; line-height: 1.7; }
+
+  .think { background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; padding: 16px 20px; margin: 14px 0; }
+  .think .tt { font-size: 11px; font-weight: 700; color: var(--brand-light); margin-bottom: 6px; }
+  .think p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  .result { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; margin: 12px 0; font-size: 13px; font-weight: 600; }
+  .result.green { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: var(--calm); }
+  .result.amber { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: var(--alert); }
+  .result.red { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--urgent); }
+  .result.brand { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); color: var(--brand-light); }
+
+  .score-table { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin: 14px 0; }
+  .score-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .score-table th { background: var(--bg2); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .score-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table .winner { background: rgba(34,197,94,0.06); }
+  .score-table .winner td { color: var(--calm); font-weight: 600; }
+
+  .divider { height: 1px; background: var(--border); margin: 60px 0; }
+  .flow-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px; padding: 10px 16px; border-radius: 8px; display: inline-block; }
+  .flow-label.green { color: var(--calm); background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); }
+  .flow-label.amber { color: var(--alert); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+  .flow-label.red { color: var(--urgent); background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+
+  .summary-box { background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(99,102,241,0.03)); border: 1px solid rgba(99,102,241,0.25); border-radius: 16px; padding: 28px; margin: 40px 0; }
+  .summary-box h3 { margin-bottom: 12px; }
+  .summary-box p { font-size: 14px; line-height: 1.8; }
+
+  /* Tab navigation */
+  .tabs { display: flex; gap: 0; margin-bottom: 60px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 14px 16px; text-align: center; font-size: 13px; font-weight: 700; cursor: pointer; background: var(--card); border-right: 1px solid var(--border); color: var(--text3); transition: all 0.2s; }
+  .tab:last-child { border-right: none; }
+  .tab:hover { color: var(--text2); background: var(--bg2); }
+  .tab.active { color: var(--brand-light); background: rgba(99,102,241,0.1); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .time { font-size: 11px; color: var(--text4); font-weight: 600; margin-bottom: 4px; }
+
+  .parallel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .parallel > div { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .parallel .side-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+
+  .event-log { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 12px 0; line-height: 1.8; }
+  .event-log .ev { color: var(--calm); }
+  .event-log .ts { color: var(--text4); }
+  .event-log .d { color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="label">FinishLine · System Walkthrough</div>
+    <h1>How it actually works</h1>
+    <p class="tagline">A scene-by-scene walkthrough of every order lifecycle. Happy path, then every exception. What happens, when, why, and who decides.</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('happy')">Happy Path</div>
+    <div class="tab" onclick="showTab('no-rider')">No Rider Available</div>
+    <div class="tab" onclick="showTab('sla-breach')">SLA Breach</div>
+    <div class="tab" onclick="showTab('failure')">Delivery Failure</div>
+    <div class="tab" onclick="showTab('cancel')">Cancellation</div>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- HAPPY PATH -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="tab-content active" id="tab-happy">
+
+    <div class="flow-label green">Happy Path — everything works</div>
+    <p style="margin-bottom:32px;">This is the 90% case. An order comes in, a rider is found, the delivery completes, the customer is happy. No human involvement at any point. This is what "autonomous" means.</p>
+
+    <!-- SCENE 1 -->
+    <div class="scene">
+      <div class="scene-num green">1</div>
+      <div class="scene-head green">The trigger</div>
+      <h3>A customer places an order</h3>
+      <div class="time">T+0 seconds</div>
+      <p>A customer in Andheri West opens BazaarNow's app and orders 3 items — milk, bread, eggs. The BazaarNow OMS processes the order and makes an API call to FinishLine.</p>
+
+      <div class="narrator">
+        <div class="who system">What the OMS sends</div>
+        <p>
+          <strong>POST /v1/orders</strong> with: hub_id (Andheri dark store), customer name, phone, address ("Shop 12, Andheri West Market"), delivery coordinates (lat/lng), items count (3), priority (standard).
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who system">What the system does immediately</div>
+        <p>
+          1. Creates an order record in the database with status = <code>created</code><br>
+          2. Calculates the SLA deadline: now + 20 minutes (configurable per hub)<br>
+          3. Emits an <strong>order.created</strong> event into the Event Bus<br>
+          4. This single event triggers a cascade of 5 things simultaneously...
+        </p>
+      </div>
+
+      <div class="parallel">
+        <div>
+          <div class="side-label" style="color:var(--brand-light);">Event Bus Subscribers (in priority order)</div>
+          <p style="font-size:12px; line-height:1.7;">
+            <strong style="color:var(--calm);">Priority 0 — Event Logger:</strong> Writes the event to the immutable events table. This always runs first. The event is saved before anything else happens.<br><br>
+            <strong style="color:var(--brand-light);">Priority 1 — State Updater:</strong> Updates orders.status = "created" in the orders table. This is the fast-read cache.<br><br>
+            <strong style="color:var(--text2);">Priority 3 — Socket Broadcaster:</strong> Pushes a real-time update to the dashboard via WebSocket. If a hub manager is watching, they see the new order appear instantly.<br><br>
+            <strong style="color:var(--text3);">Priority 5 — Webhook Dispatcher:</strong> Queues an outbound webhook if configured (for external integrations).<br><br>
+            <strong style="color:var(--calm);">Priority 5 — Auto-Dispatch Handler:</strong> This is the big one. This triggers the Decision Engine. See next scene.
+          </p>
+        </div>
+        <div>
+          <div class="side-label" style="color:var(--alert);">What the dashboard shows</div>
+          <p style="font-size:12px; line-height:1.7;">
+            The moment the order is created, the hub manager's dashboard updates:<br><br>
+            Active orders counter: <strong>4 → 5</strong><br>
+            The Action Feed shows a new entry<br>
+            If the dashboard is in "Calm" mode, it stays calm — nothing is wrong yet.<br><br>
+            <em style="color:var(--text3);">All of this happens within ~50ms of the OMS API call.</em>
+          </p>
+        </div>
+      </div>
+
+      <div class="result green">Order #4821 created. SLA deadline: 14:20:00. System is now looking for a rider.</div>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div class="scene">
+      <div class="scene-num brand">2</div>
+      <div class="scene-head brand">The brain kicks in</div>
+      <h3>The Decision Engine finds a rider</h3>
+      <div class="time">T+0.1 seconds (100 milliseconds after order creation)</div>
+      <p>This is the core of the system. The auto-dispatch handler fires and the Decision Engine takes over. Here's exactly what happens inside:</p>
+
+      <div class="narrator">
+        <div class="who engine">Step 1 — Acquire the lock</div>
+        <p>
+          The system grabs a <strong>Redis mutex lock</strong> on this specific order ID. Why? Because the SLA monitor, the escalation handler, and a human on the dashboard could all try to act on this order at the same time. The lock ensures only one decision-maker acts at a time. One brain, one order, one decision.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who engine">Step 2 — Find nearby riders</div>
+        <p>
+          The system queries Redis GEO: <strong>"Give me all riders within 3km of the Andheri hub."</strong> (3km is the default radius — configurable per hub via the Config Engine.)<br><br>
+          Redis GEO stores every online rider's last-known latitude/longitude. It returns a list with distances. Today, this returns 4 riders who are online and within range.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who engine">Step 3 — Filter for eligibility</div>
+        <p>
+          Not every nearby rider can take this order. The system applies three filters:<br><br>
+          <strong>Filter 1:</strong> Is the rider's status <code>available</code>? (Not on_trip, not on_break)<br>
+          <strong>Filter 2:</strong> Is the rider below their max concurrent order limit? (Default: 1 order at a time)<br>
+          <strong>Filter 3:</strong> Are they actually within the max radius? (Double-check against config)<br><br>
+          Out of 4 nearby riders, 3 pass all filters. One is already on a trip — filtered out.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who engine">Step 4 — Score each eligible rider</div>
+        <p>
+          This is the equity-aware dispatch algorithm. Every eligible rider gets a score from 0 to 1. The score is a weighted sum of three factors:
+        </p>
+      </div>
+
+      <div class="think">
+        <div class="tt">The scoring formula</div>
+        <p>
+          <strong>Proximity score (weight: 0.4)</strong><br>
+          How close is the rider to the hub? Formula: <code>1 - (distance / max_radius)</code><br>
+          A rider 0.5km away scores 0.83. A rider 2.5km away scores 0.17. Closer = higher.<br><br>
+
+          <strong>Load balance score (weight: 0.3)</strong><br>
+          How busy is the rider right now? Formula: <code>1 - (active_orders / max_concurrent)</code><br>
+          An idle rider scores 1.0. A rider at capacity scores 0.0. This prevents overloading.<br><br>
+
+          <strong>Earnings equity score (weight: 0.3)</strong><br>
+          Has this rider gotten their fair share of work today? This is what makes the system different.<br>
+          The system checks: how many deliveries has this rider done today vs. the hub average? How much has this rider earned today vs. the hub average?<br>
+          <code>equity = 0.5 x delivery_equity + 0.5 x earnings_equity</code><br>
+          A rider who has done fewer deliveries than average scores higher. A rider who has earned less than average scores higher.<br>
+          <strong>Underserved riders get priority.</strong> The research says: sacrificing 2.5% in delivery speed improves pay equity by 39%.
+        </p>
+      </div>
+
+      <div class="score-table">
+        <table>
+          <thead>
+            <tr><th>Rider</th><th>Distance</th><th>Proximity (0.4)</th><th>Load (0.3)</th><th>Equity (0.3)</th><th>Final Score</th></tr>
+          </thead>
+          <tbody>
+            <tr class="winner">
+              <td><strong>Priya Sharma</strong></td>
+              <td>0.8 km</td>
+              <td>0.73</td>
+              <td>1.00</td>
+              <td>0.85</td>
+              <td><strong>0.85</strong></td>
+            </tr>
+            <tr>
+              <td>Amit Kumar</td>
+              <td>0.5 km</td>
+              <td>0.83</td>
+              <td>1.00</td>
+              <td>0.40</td>
+              <td>0.75</td>
+            </tr>
+            <tr>
+              <td>Deepak Yadav</td>
+              <td>1.8 km</td>
+              <td>0.40</td>
+              <td>1.00</td>
+              <td>0.70</td>
+              <td>0.67</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="think">
+        <div class="tt">Why Priya wins, not Amit</div>
+        <p>
+          Amit is closer (0.5km vs 0.8km), so he has a higher proximity score. But Amit has already completed 8 deliveries today — above the hub average of 6. His equity score is low (0.40).<br><br>
+          Priya has only completed 3 deliveries today — well below average. Her equity score is high (0.85). Even though she's slightly further away, the equity weight (0.3) lifts her total score above Amit's.<br><br>
+          <strong>This is the "2.5% cost sacrifice = 39% equity improvement" in action.</strong> We send the rider 300 metres further, but we balance earnings across the fleet. In a 12-person Tier 2 hub, this is the difference between a rider who stays and one who quits.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who engine">Step 5 — Execute the assignment</div>
+        <p>
+          The Decision Engine has chosen Priya. Now it executes:<br><br>
+          1. <strong>Decision logged:</strong> A full record is written to the <code>decisions</code> table — who was considered, scores, who won, why, the runner-up alternatives (Amit ranked #2, Deepak #3), estimated cost (&#x20B9;18.40), estimated time (8 minutes), and a snapshot of the config that was active at this moment.<br><br>
+          2. <strong>Order updated:</strong> status → <code>assigned</code>, assigned_rider_id → Priya's ID<br><br>
+          3. <strong>Rider updated:</strong> Priya's status → <code>on_trip</code>, active_orders → 1<br><br>
+          4. <strong>Events emitted:</strong> <code>order.assigned</code> + <code>rider.assigned</code>. These flow through the Event Bus again — logged, state updated, WebSocket pushed, webhook queued.
+        </p>
+      </div>
+
+      <div class="event-log">
+        <span class="ts">14:00:00.000</span> <span class="ev">order.created</span> <span class="d">→ Order #4821, hub: Andheri, customer: Rahul Mehta</span><br>
+        <span class="ts">14:00:00.020</span> <span class="ev">order.dispatching</span> <span class="d">→ Lock acquired, searching riders within 3km</span><br>
+        <span class="ts">14:00:00.089</span> <span class="ev">decision.made</span> <span class="d">→ type: dispatch, action: assign_rider, rider: Priya Sharma, confidence: 0.85</span><br>
+        <span class="ts">14:00:00.102</span> <span class="ev">order.assigned</span> <span class="d">→ rider: Priya Sharma, est. time: 8 min, est. cost: &#x20B9;18.40</span><br>
+        <span class="ts">14:00:00.102</span> <span class="ev">rider.assigned</span> <span class="d">→ Priya Sharma, order #4821, distance to hub: 0.8km</span>
+      </div>
+
+      <div class="result green">Rider assigned in 102ms. Priya Sharma selected. No human involved. Decision fully auditable.</div>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div class="scene">
+      <div class="scene-num green">3</div>
+      <div class="scene-head green">The pickup</div>
+      <h3>Priya arrives at the hub and picks up the order</h3>
+      <div class="time">T+4 minutes</div>
+
+      <p>Priya rides to the Andheri dark store. She arrives, walks in, and the store staff hands her the bag with 3 items.</p>
+
+      <div class="narrator">
+        <div class="who rider">What triggers this in the system</div>
+        <p>
+          Today (without a rider app): the hub manager or the API caller hits <strong>POST /v1/orders/:id/pickup</strong>. No request body needed.<br><br>
+          In the future (with the rider app): Priya taps "Picked up" on her phone, which makes this same API call automatically.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who system">What the system does</div>
+        <p>
+          1. Validates state transition: order must be in <code>assigned</code> state to move to <code>picked_up</code>. If someone tries to pick up an order that's already in transit, the system rejects it.<br>
+          2. Emits <code>order.picked_up</code> event → logged, state updated, dashboard pushed.<br>
+          3. The SLA clock is still ticking. Priya has 16 minutes of the 20-minute window left.
+        </p>
+      </div>
+
+      <div class="result green">Order picked up at 14:04. 16 minutes remaining on SLA.</div>
+    </div>
+
+    <!-- SCENE 4 -->
+    <div class="scene">
+      <div class="scene-num green">4</div>
+      <div class="scene-head green">In transit</div>
+      <h3>Priya rides to the customer</h3>
+      <div class="time">T+5 minutes</div>
+
+      <p>Priya exits the hub and heads toward Andheri West Market. The order is now in transit.</p>
+
+      <div class="narrator">
+        <div class="who system">What triggers this</div>
+        <p><strong>POST /v1/orders/:id/transit</strong>. No body. State moves from <code>picked_up</code> to <code>in_transit</code>.</p>
+      </div>
+
+      <div class="parallel">
+        <div>
+          <div class="side-label" style="color:var(--brand-light);">What's happening in the background</div>
+          <p style="font-size:12px; line-height:1.7;">
+            <strong>SLA Monitor</strong> (runs every 30 seconds): checks this order.<br>
+            Elapsed: 5 min of 20 min = 25%. Below warning threshold (70%). No action needed. Silent.<br><br>
+            <strong>Location tracking</strong> (future): Priya's rider app would send GPS updates every 5 seconds via <code>POST /v1/riders/:id/location</code>. Today this is simulated.
+          </p>
+        </div>
+        <div>
+          <div class="side-label" style="color:var(--alert);">Dashboard view</div>
+          <p style="font-size:12px; line-height:1.7;">
+            Hub manager sees:<br>
+            Active orders: <strong>5</strong><br>
+            Order #4821: <strong>In Transit</strong> — Priya Sharma — 15 min remaining<br>
+            Status dot: <strong style="color:var(--calm);">green</strong> (on track)<br><br>
+            No action needed. The manager doesn't touch anything.
+          </p>
+        </div>
+      </div>
+
+      <div class="result green">In transit. ETA 8 minutes. SLA on track. Dashboard calm.</div>
+    </div>
+
+    <!-- SCENE 5 -->
+    <div class="scene">
+      <div class="scene-num green">5</div>
+      <div class="scene-head green">Delivery</div>
+      <h3>Priya delivers the order</h3>
+      <div class="time">T+12 minutes</div>
+
+      <p>Priya reaches the customer. Rahul Mehta is at the door. She hands over the bag and collects the OTP.</p>
+
+      <div class="narrator">
+        <div class="who system">What triggers this</div>
+        <p>
+          <strong>POST /v1/orders/:id/deliver</strong> with body: <code>{"proof_type": "otp", "otp": "1234"}</code><br><br>
+          The system requires proof of delivery. Today that's an OTP. In the future it could be a photo or signature.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who system">What the system does</div>
+        <p>
+          1. <strong>Order updated:</strong> status → <code>delivered</code>, delivered_at → now, within_sla → <code>true</code> (12 min &lt; 20 min SLA)<br>
+          2. <strong>Rider updated:</strong> Priya's active_orders → 0, status → <code>available</code>, deliveries_today → 4, earnings_today += &#x20B9;18.40<br>
+          3. <strong>Events emitted:</strong> <code>order.delivered</code> with cost_data (delivery_cost, rider_payout, within_sla)<br>
+          4. <strong>Dashboard updates instantly:</strong> Deliveries today counter goes up. On-time rate recalculates.
+        </p>
+      </div>
+
+      <div class="event-log">
+        <span class="ts">14:00:00.000</span> <span class="ev">order.created</span><br>
+        <span class="ts">14:00:00.102</span> <span class="ev">order.assigned</span> <span class="d">→ Priya Sharma</span><br>
+        <span class="ts">14:04:12.000</span> <span class="ev">order.picked_up</span><br>
+        <span class="ts">14:05:30.000</span> <span class="ev">order.in_transit</span><br>
+        <span class="ts">14:12:18.000</span> <span class="ev">order.delivered</span> <span class="d">→ within_sla: true, time: 12m 18s, cost: &#x20B9;18.40</span>
+      </div>
+
+      <div class="result green">Delivered in 12 minutes 18 seconds. Within SLA. Priya earned &#x20B9;18.40. Her equity score for the next order will be slightly lower (she's now closer to the hub average). Zero human intervention throughout.</div>
+    </div>
+
+    <!-- SCENE 6 -->
+    <div class="scene">
+      <div class="scene-num green">6</div>
+      <div class="scene-head green">The audit trail</div>
+      <h3>Everything is permanently recorded</h3>
+      <div class="time">After delivery</div>
+
+      <p>This is the "sacred system of record" principle. Nothing is lost. Everything is queryable. If anyone asks "what happened with order #4821?" — the answer is complete.</p>
+
+      <div class="narrator">
+        <div class="who system">What was recorded</div>
+        <p>
+          <strong>6 events</strong> in the immutable events table — order.created, order.dispatching, order.assigned, order.picked_up, order.in_transit, order.delivered. Each with full payload, timestamps, actor, cost data.<br><br>
+          <strong>1 decision</strong> in the decisions table — which riders were considered, their scores, who won, why, the alternatives, the config that was active, the cost estimate, the equity impact.<br><br>
+          <strong>You can answer any question:</strong> "Why was Priya assigned and not Amit?" "How long did each step take?" "What was the cost?" "Was the SLA met?" "What config was active?" — all from the data, no guessing.
+        </p>
+      </div>
+
+      <div class="summary-box">
+        <h3>Happy path summary</h3>
+        <p>
+          Total time: 12 minutes 18 seconds. Human involvement: zero. Decision made in 102ms. 6 immutable events recorded. Full decision audit trail with runner-up alternatives. SLA met. Rider earnings tracked for equity. Dashboard updated in real-time throughout. Cost calculated and logged.<br><br>
+          <strong>This is the 90% case. This is what "% of orders completed autonomously" measures.</strong>
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end happy path -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- NO RIDER AVAILABLE -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-no-rider">
+
+    <div class="flow-label amber">Exception Flow — No rider available</div>
+    <p style="margin-bottom:32px;">An order comes in, the Decision Engine searches for riders, and finds nobody. This is the most common exception in a thin Tier 2 fleet. Here's how the system self-heals.</p>
+
+    <!-- SCENE 1 -->
+    <div class="scene">
+      <div class="scene-num brand">1</div>
+      <div class="scene-head brand">Same start</div>
+      <h3>Order created, dispatch triggered</h3>
+      <div class="time">T+0 seconds</div>
+      <p>Same as the happy path. Customer places order → OMS calls the API → order.created event → auto-dispatch handler fires.</p>
+
+      <div class="narrator">
+        <div class="who engine">The Decision Engine searches...</div>
+        <p>
+          Redis GEO query: "riders within 3km of Andheri hub"<br>
+          Result: <strong>2 riders found</strong><br><br>
+          Eligibility filters:<br>
+          - Rider A: status = <code>on_trip</code> → <strong>filtered out</strong><br>
+          - Rider B: status = <code>on_break</code> → <strong>filtered out</strong><br><br>
+          <strong>Zero eligible riders.</strong> Nobody can take this order right now.
+        </p>
+      </div>
+
+      <div class="result amber">No eligible riders within 3km. Decision Engine returns action: "no_rider".</div>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div class="scene">
+      <div class="scene-num amber">2</div>
+      <div class="scene-head amber">Escalation triggered</div>
+      <h3>The system escalates — but doesn't give up</h3>
+      <div class="time">T+0.2 seconds</div>
+
+      <div class="narrator">
+        <div class="who engine">What happens immediately</div>
+        <p>
+          The auto-dispatch handler sees the "no_rider" response. It:<br><br>
+          1. Sets order status → <code>escalated</code><br>
+          2. Emits <code>order.escalated</code> event<br>
+          3. The <strong>Self-Heal Handler</strong> is listening for this event. It fires immediately.
+        </p>
+      </div>
+
+      <div class="result amber">Order escalated. Self-healing begins.</div>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div class="scene">
+      <div class="scene-num amber">3</div>
+      <div class="scene-head amber">Self-healing step 1</div>
+      <h3>Expand the search radius</h3>
+      <div class="time">T+0.3 seconds</div>
+
+      <div class="narrator">
+        <div class="who engine">What the Self-Heal Handler does</div>
+        <p>
+          It takes the original radius (3km) and multiplies by <strong>1.5x</strong>.<br>
+          New search: <strong>"riders within 4.5km of Andheri hub"</strong><br><br>
+          This wider net catches riders who were just outside the original search.<br>
+          The system re-runs the full dispatch logic — GEO query, eligibility filters, scoring — with the expanded radius.
+        </p>
+      </div>
+
+      <div class="think">
+        <div class="tt">Why 1.5x and not 2x or 3x?</div>
+        <p>
+          If you expand too aggressively, you assign a rider 8km away — they take 15 minutes just to reach the hub, and the SLA is already half gone. 1.5x is a conservative first step. If this also fails, the escalation chain has more steps. Each step is configured in the Config Engine — you can change the multiplier per hub.
+        </p>
+      </div>
+
+      <p><strong>Scenario A — A rider is found at 4.2km:</strong></p>
+      <div class="narrator">
+        <div class="who engine">Success — self-heal worked</div>
+        <p>
+          The expanded search found Deepak Yadav at 4.2km. He's eligible. The system scores him (he's the only candidate, so he wins automatically), assigns him, and emits:<br><br>
+          <code>auto_heal.executed</code> — "Self-healing succeeded. Rider found at expanded radius."<br>
+          <code>order.assigned</code> — Deepak Yadav assigned<br><br>
+          The order is back on track. The dashboard shows a brief amber flash (escalated, then resolved) and returns to green.
+        </p>
+      </div>
+
+      <div class="result green">Self-heal succeeded. Deepak Yadav assigned at 4.2km. Order back on track.</div>
+
+      <p style="margin-top:20px;"><strong>Scenario B — Still no rider found:</strong></p>
+      <div class="narrator">
+        <div class="who engine">Failure — expanded search also found nobody</div>
+        <p>
+          Even at 4.5km, no eligible riders. The system emits:<br><br>
+          <code>auto_heal.exhausted</code> — "All automatic recovery options exhausted."<br><br>
+          The order stays in <code>escalated</code> status. This is now a <strong>human problem</strong>.
+        </p>
+      </div>
+
+      <div class="result red">Self-heal exhausted. Human intervention required.</div>
+    </div>
+
+    <!-- SCENE 4 -->
+    <div class="scene">
+      <div class="scene-num red">4</div>
+      <div class="scene-head red">Human takes over</div>
+      <h3>The hub manager sees the exception</h3>
+      <div class="time">T+1–2 minutes</div>
+
+      <div class="narrator">
+        <div class="who human">What the hub manager sees</div>
+        <p>
+          The Action Feed on the dashboard shows a <strong style="color:var(--urgent);">red exception card</strong>:<br><br>
+          "Order #4821 — No rider available. Auto-dispatch failed. Expanded radius failed. Needs manual assignment."<br><br>
+          The manager now has to make a call. Their options:
+        </p>
+      </div>
+
+      <div class="parallel">
+        <div>
+          <div class="side-label" style="color:var(--calm);">Option: Manual assign</div>
+          <p style="font-size:12px; line-height:1.7;">
+            The manager sees the rider list and knows that Rider A is almost done with their current delivery (2 minutes away). They wait, then manually assign via <code>POST /v1/orders/:id/assign</code>. The system respects this — manual assignment overrides the engine.
+          </p>
+        </div>
+        <div>
+          <div class="side-label" style="color:var(--urgent);">Option: Cancel the order</div>
+          <p style="font-size:12px; line-height:1.7;">
+            If there's genuinely no way to deliver (all riders are stuck, weather is bad), the manager cancels via <code>POST /v1/orders/:id/cancel</code>. The order becomes terminal. The OMS is notified via webhook.
+          </p>
+        </div>
+      </div>
+
+      <div class="think">
+        <div class="tt">What the escalation chain is designed to be (configurable)</div>
+        <p>
+          The default chain is configured in the Config Engine:<br><br>
+          Step 1: <strong>Wait 120 seconds</strong> (maybe a rider will finish their current trip)<br>
+          Step 2: <strong>Expand radius</strong> to 5km (configurable)<br>
+          Step 3: <strong>Ping offline riders</strong> (not built yet — Phase 2)<br>
+          Step 4: <strong>Alert human</strong> — surface to the dashboard exception queue<br><br>
+          Today, only expand_radius and alert_human are implemented. Wait and ping_offline_riders are in the config schema but the execution logic isn't wired yet.
+        </p>
+      </div>
+
+      <div class="summary-box">
+        <h3>No-rider exception summary</h3>
+        <p>
+          The system tried automatically: expanded the search 1.5x. If that works, the order self-heals — no human needed. If it doesn't, the order escalates to the hub manager's exception queue. The full chain (wait → expand → ping offline → alert) is designed but only partially implemented in Phase 1.<br><br>
+          <strong>Key insight for BazaarNow:</strong> In a 12-rider Tier 2 hub, this exception will happen more often than in a 200-rider Mumbai hub. The self-healing chain and its configuration per hub is survival-critical, not a nice-to-have.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end no-rider -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- SLA BREACH -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-sla-breach">
+
+    <div class="flow-label red">Exception Flow — SLA breach</div>
+    <p style="margin-bottom:32px;">The order was assigned, the rider picked up, but things are taking too long. The 20-minute SLA window is closing. The system doesn't wait for it to breach — it warns proactively.</p>
+
+    <!-- SCENE 1 -->
+    <div class="scene">
+      <div class="scene-num green">1</div>
+      <div class="scene-head green">Normal start</div>
+      <h3>Order created and assigned — all normal</h3>
+      <div class="time">T+0</div>
+      <p>Happy path until pickup. Rider assigned (Amit Kumar this time), order picked up at T+5 min. Rider heads out for delivery. SLA deadline is T+20 minutes.</p>
+      <div class="result green">Order in transit. 15 minutes remaining on SLA.</div>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div class="scene">
+      <div class="scene-num amber">2</div>
+      <div class="scene-head amber">The SLA monitor wakes up</div>
+      <h3>Warning: 70% of SLA consumed</h3>
+      <div class="time">T+14 minutes</div>
+
+      <div class="narrator">
+        <div class="who sla">What the SLA Monitor does (every 30 seconds)</div>
+        <p>
+          The SLA Monitor is a BullMQ repeatable job that runs every 30 seconds. Each time, it:<br><br>
+          1. Queries <strong>all active (non-terminal) orders</strong> from the database<br>
+          2. For each order, calculates: <code>elapsed_pct = (now - created_at) / (sla_target_at - created_at) × 100</code><br>
+          3. Compares against thresholds
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who sla">Order #4821 at T+14 minutes</div>
+        <p>
+          elapsed_pct = 14/20 × 100 = <strong>70%</strong><br>
+          Warning threshold (from config): <strong>70%</strong><br><br>
+          The system emits: <code>sla.warning</code><br>
+          A Redis flag is set so this warning fires only once per order (no repeat noise).<br><br>
+          The Decision Engine evaluates: should we escalate preemptively? (Config: <code>preemptive_escalation: true</code>)<br>
+          Decision type: <code>sla_action</code>. If the order is still in transit, it flags for monitoring. If the order is still stuck at "assigned" (rider hasn't picked up), it may trigger escalation.
+        </p>
+      </div>
+
+      <div class="result amber">SLA warning at 70%. Order flagged. Dashboard shows amber status for this order. Hub manager is aware.</div>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div class="scene">
+      <div class="scene-num red">3</div>
+      <div class="scene-head red">SLA breach</div>
+      <h3>20 minutes have passed. Delivery not complete.</h3>
+      <div class="time">T+20 minutes</div>
+
+      <div class="narrator">
+        <div class="who sla">SLA Monitor detects breach</div>
+        <p>
+          elapsed_pct = 100%+<br>
+          The system emits: <code>sla.breached</code><br>
+          Again, Redis deduplication — fires only once.<br><br>
+          Config says: <code>breach_action: "escalate"</code><br>
+          The order is marked as SLA-breached. The Decision Engine logs a decision of type <code>sla_action</code> with action <code>escalate</code>.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who human">What the hub manager sees</div>
+        <p>
+          The order card in the Action Feed turns <strong style="color:var(--urgent);">red</strong>. "Order #4821 — SLA BREACHED. In transit for 21 minutes. Target was 20 minutes."<br><br>
+          At this point the order is still being delivered — the rider is still riding. The breach is a metric event, not a cancellation. The delivery will still complete. But it counts against the on-time rate.
+        </p>
+      </div>
+
+      <div class="think">
+        <div class="tt">What is NOT built yet for SLA breach</div>
+        <p>
+          <strong>Proactive customer notification</strong> — "Your order is running late, new ETA is X." This is in the architecture vision but not implemented. No SMS/push integration exists yet.<br><br>
+          <strong>Automatic compensation</strong> — crediting the customer or adjusting the rider's metrics. Not implemented.<br><br>
+          <strong>SLA recovery actions</strong> — like route optimisation or reassignment to a closer rider already heading that direction. Not implemented.
+        </p>
+      </div>
+
+      <div class="summary-box">
+        <h3>SLA breach summary</h3>
+        <p>
+          The SLA Monitor catches orders heading toward breach at 70% (warning) and 100% (breach). It logs everything. It flags the dashboard. It fires a decision. But the response is currently limited to flagging — there's no proactive customer communication, no route rerouting, no compensation engine. The monitoring is built. The remediation is not.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end sla-breach -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- DELIVERY FAILURE -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-failure">
+
+    <div class="flow-label red">Exception Flow — Delivery failure</div>
+    <p style="margin-bottom:32px;">The rider reaches the customer, but can't deliver. Customer not home, wrong address, refused delivery. This is where the "fail" endpoint is used.</p>
+
+    <!-- SCENE 1 -->
+    <div class="scene">
+      <div class="scene-num green">1</div>
+      <div class="scene-head green">Normal flow until arrival</div>
+      <h3>Rider reaches the address</h3>
+      <div class="time">T+10 minutes</div>
+      <p>Happy path up to this point. Order assigned, picked up, in transit. Rider arrives at the customer location. But the customer isn't there. Phone goes unanswered.</p>
+      <div class="result amber">Rider at location. Customer not responding.</div>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div class="scene">
+      <div class="scene-num red">2</div>
+      <div class="scene-head red">Failure recorded</div>
+      <h3>Rider marks the delivery as failed</h3>
+      <div class="time">T+15 minutes</div>
+
+      <div class="narrator">
+        <div class="who system">What triggers this</div>
+        <p>
+          <strong>POST /v1/orders/:id/fail</strong> with a reason: "customer_not_available"<br><br>
+          The system accepts this from <code>assigned</code>, <code>picked_up</code>, or <code>in_transit</code> states.
+        </p>
+      </div>
+
+      <div class="narrator">
+        <div class="who system">What the system does</div>
+        <p>
+          1. Order status → <code>failed</code> (terminal state)<br>
+          2. Rider freed: active_orders → 0, status → <code>available</code><br>
+          3. Event emitted: <code>order.failed</code> with failure_reason<br>
+          4. Dashboard counter: failed orders +1, on-time rate unchanged (it wasn't delivered late — it wasn't delivered at all)
+        </p>
+      </div>
+
+      <div class="think">
+        <div class="tt">What is NOT built for failure recovery</div>
+        <p>
+          <strong>Automatic re-dispatch:</strong> If the rider fails to deliver, the system does NOT automatically try to redeliver. The order goes terminal. A human would need to create a new order. This is a gap.<br><br>
+          <strong>Customer contact before failure:</strong> The handover risk scoring exists (decision type: <code>handover_risk</code>) and would recommend "pre_contact_customer" for high-risk deliveries. But this recommendation is not wired to any notification system. The system scores the risk but can't act on it yet.<br><br>
+          <strong>Return-to-hub flow:</strong> The rider has the items but the customer isn't there. There's no "return to hub" state or process in the current system. The rider just becomes available again. The items are... in limbo.
+        </p>
+      </div>
+
+      <div class="summary-box">
+        <h3>Delivery failure summary</h3>
+        <p>
+          The system can record a failure and free the rider. But it can't recover from it automatically — no re-dispatch, no return-to-hub flow, no customer notification. The handover risk scoring exists but can't act. This is the biggest gap between "autonomous operations" and reality. In Tier 2 with thin margins, every failed delivery costs &#x20B9;1,200+. Building the recovery loop is high-value.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end failure -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- CANCELLATION -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-cancel">
+
+    <div class="flow-label amber">Exception Flow — Order cancellation</div>
+    <p style="margin-bottom:32px;">The order needs to be cancelled. Could be: item out of stock, customer changed their mind, address is invalid. Cancellation can happen at different stages with different consequences.</p>
+
+    <div class="scene">
+      <div class="scene-num amber">1</div>
+      <div class="scene-head amber">Before assignment</div>
+      <h3>Cancel while the system is still looking for a rider</h3>
+      <div class="time">Status: created or dispatching</div>
+
+      <div class="narrator">
+        <div class="who system">What happens</div>
+        <p>
+          <strong>POST /v1/orders/:id/cancel</strong><br><br>
+          Simplest case. No rider was assigned yet. The system:<br>
+          1. Sets status → <code>cancelled</code> (terminal)<br>
+          2. Emits <code>order.cancelled</code> event<br>
+          3. If dispatch was in progress, the Redis lock ensures the cancel and the dispatch don't collide — one wins, one is rejected<br><br>
+          <strong>Impact:</strong> Minimal. No rider was inconvenienced. No items were picked. Dashboard shows cancelled +1.
+        </p>
+      </div>
+
+      <div class="result brand">Cancelled cleanly. No rider involved. No wasted effort.</div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-num red">2</div>
+      <div class="scene-head red">After assignment</div>
+      <h3>Cancel after a rider was already assigned</h3>
+      <div class="time">Status: assigned</div>
+
+      <div class="narrator">
+        <div class="who system">What happens</div>
+        <p>
+          <strong>POST /v1/orders/:id/cancel</strong><br><br>
+          More complex. A rider (Priya) was already heading to the hub or is at the hub. The system:<br>
+          1. Sets order status → <code>cancelled</code><br>
+          2. <strong>Frees the rider:</strong> Priya's active_orders → 0, status → <code>available</code><br>
+          3. Emits <code>order.cancelled</code> event<br><br>
+          <strong>Impact:</strong> Priya wasted time riding to the hub. She's now available for the next order, but she did uncompensated work.
+        </p>
+      </div>
+
+      <div class="think">
+        <div class="tt">What is NOT built for post-assignment cancellation</div>
+        <p>
+          <strong>Rider notification:</strong> Priya isn't automatically told the order was cancelled. Without a rider app, there's no channel to reach her. She'd find out when she arrives at the hub and the staff says "that order was cancelled."<br><br>
+          <strong>Cancellation compensation:</strong> The system doesn't track or compensate for wasted rider time on cancelled orders. The equity score doesn't account for this — a cancelled order doesn't add to Priya's earnings but cost her time.<br><br>
+          <strong>Cancellation reason tracking:</strong> The cancel endpoint doesn't require a reason (unlike the fail endpoint). Adding this would be valuable for identifying patterns — "40 cancellations this week due to out-of-stock" is an inventory signal.
+        </p>
+      </div>
+
+      <div class="summary-box">
+        <h3>Cancellation summary</h3>
+        <p>
+          Cancellation works mechanically — the order goes terminal, the rider is freed. But the rider communication gap means a rider could waste 10 minutes heading to a hub for a cancelled order. This is fixable once the rider app exists. For now, the hub manager would need to manually call the rider.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end cancel -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- FINAL SUMMARY -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="divider"></div>
+
+  <div style="margin-bottom:40px;">
+    <div class="label">The full picture</div>
+    <h2>What the system can and cannot do today</h2>
+  </div>
+
+  <div class="parallel" style="margin-bottom:24px;">
+    <div style="border-color:rgba(34,197,94,0.3);">
+      <div class="side-label" style="color:var(--calm);">The system handles autonomously</div>
+      <p style="font-size:13px; line-height:1.8;">
+        Order intake from OMS<br>
+        Rider scoring and assignment (equity-aware, ~100ms)<br>
+        Self-healing: expand radius when no rider found<br>
+        SLA monitoring: warning at 70%, breach at 100%<br>
+        Full audit trail: every event, every decision, every alternative<br>
+        Real-time dashboard updates via WebSocket<br>
+        Outbound webhooks for external integration<br>
+        Runtime config changes per hub (no redeploy)
+      </p>
+    </div>
+    <div style="border-color:rgba(239,68,68,0.3);">
+      <div class="side-label" style="color:var(--urgent);">Requires human / not built yet</div>
+      <p style="font-size:13px; line-height:1.8;">
+        Rider notifications (no rider app)<br>
+        Manual assignment when auto-dispatch exhausts<br>
+        All lifecycle transitions (pickup, transit, deliver)<br>
+        Failure recovery (re-dispatch after failed delivery)<br>
+        Customer communication (late order alerts)<br>
+        Readiness-aware dispatch (wait for store packing)<br>
+        Return-to-hub flow after cancellation/failure<br>
+        Unit economics reporting UI
+      </p>
+    </div>
+  </div>
+
+  <div class="summary-box">
+    <h3>The mental model</h3>
+    <p>
+      Think of FinishLine today as a <strong>brain with no hands</strong>.<br><br>
+      The brain is excellent. It makes the right dispatch decisions, tracks everything, self-heals when it can, and knows when to call for help. The scoring is real, the equity is real, the audit trail is real.<br><br>
+      The hands are missing. No rider app means the brain can decide but can't communicate the decision to the rider directly. No customer notifications means the brain knows a delivery is late but can't tell the customer. No readiness signal means the brain dispatches immediately instead of waiting for the order to be packed.<br><br>
+      <strong>Phase 2 builds the hands.</strong> Rider app, customer notifications, store readiness signals, failure recovery flows. The architecture is designed for this — every event, every decision, every config is already structured to support it. The brain doesn't need to be rebuilt. It just needs a body.
+    </p>
+  </div>
+
+  <div style="text-align:center; padding:40px 0 60px;">
+    <div style="font-size:13px; color:var(--text4);">FinishLine · System Walkthrough · March 2026</div>
+    <div style="font-size:12px; color:var(--text4); margin-top:4px;">A brain with no hands — but the right brain.</div>
+  </div>
+
+</div><!-- end page -->
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.querySelector('.tabs').offsetTop - 20, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
