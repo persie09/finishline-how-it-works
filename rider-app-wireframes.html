@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BazaarNow Rider App — Wireframes</title>
+<style>
+  :root {
+    --brand: #f5c518;
+    --brand-dark: #d4a90c;
+    --cta: #1a8d42;
+    --cta-hover: #15703a;
+    --red: #e53e3e;
+    --red-bg: #fff5f5;
+    --amber: #ed8936;
+    --amber-bg: #fffaf0;
+    --green: #38a169;
+    --green-bg: #f0fff4;
+    --blue: #3182ce;
+    --blue-bg: #ebf8ff;
+    --bg: #f0f0eb;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --text2: #4a5568;
+    --text3: #a0aec0;
+    --phone-w: 375px;
+    --phone-h: 812px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #1a1a2e; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; min-height: 100vh; }
+
+  /* Layout: sidebar nav + phone + annotations */
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Left: screen nav */
+  .screen-nav { width: 260px; background: #16213e; padding: 20px 12px; overflow-y: auto; position: fixed; left: 0; top: 0; bottom: 0; z-index: 10; }
+  .screen-nav h2 { color: var(--brand); font-size: 16px; margin-bottom: 16px; padding-left: 8px; }
+  .nav-section { margin-bottom: 16px; }
+  .nav-section-title { color: #718096; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 8px; margin-bottom: 4px; }
+  .nav-item { padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #a0aec0; cursor: pointer; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+  .nav-item.active { background: rgba(245,197,24,0.12); color: var(--brand); font-weight: 600; }
+  .nav-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-blue { background: var(--blue); }
+  .dot-red { background: var(--red); }
+
+  /* Center: phone */
+  .phone-area { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; margin-left: 260px; }
+  .phone-wrap { display: flex; gap: 32px; align-items: flex-start; }
+
+  .phone { width: var(--phone-w); min-height: 700px; background: #f7fafc; border-radius: 40px; border: 4px solid #2d3748; position: relative; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .phone-notch { width: 120px; height: 28px; background: #2d3748; border-radius: 0 0 16px 16px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 5; }
+  .phone-home { width: 100px; height: 4px; background: #2d3748; border-radius: 2px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 5; }
+
+  /* Screen container */
+  .screen { display: none; flex-direction: column; min-height: 700px; background: white; }
+  .screen.active { display: flex; }
+
+  /* Status bar */
+  .status-bar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 20px 6px; font-size: 12px; font-weight: 600; color: #1a202c; flex-shrink: 0; }
+
+  /* Header */
+  .header { background: var(--brand); padding: 0 16px 14px; }
+  .header-title { font-size: 20px; font-weight: 800; color: #1a202c; }
+  .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 1px; }
+  .header-white { background: white; border-bottom: 1px solid var(--border); padding: 12px 16px; }
+  .header-white .header-title { font-size: 17px; color: var(--text); }
+
+  .back-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: rgba(0,0,0,0.5); margin-bottom: 6px; cursor: pointer; }
+
+  /* Cards */
+  .m-card { background: white; border-radius: 14px; margin: 8px 16px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+  .m-card-flush { margin: 0; border-radius: 0; border-left: none; border-right: none; }
+
+  /* Big action button */
+  .big-btn { display: block; margin: 12px 16px; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; text-align: center; border: none; cursor: pointer; }
+  .big-btn-cta { background: var(--cta); color: white; }
+  .big-btn-brand { background: var(--brand); color: #1a202c; }
+  .big-btn-outline { background: white; border: 2px solid var(--border); color: var(--text); }
+  .big-btn-red { background: var(--red); color: white; }
+  .big-btn-disabled { background: #e2e8f0; color: #a0aec0; cursor: not-allowed; }
+
+  /* Bottom nav */
+  .bottom-nav { display: flex; background: white; border-top: 1px solid var(--border); padding: 6px 0 20px; margin-top: auto; flex-shrink: 0; }
+  .bottom-nav-item { flex: 1; text-align: center; font-size: 10px; color: var(--text3); padding-top: 6px; cursor: pointer; }
+  .bottom-nav-item.active { color: var(--cta); font-weight: 600; }
+  .bottom-nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+  /* Form elements */
+  .m-input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; outline: none; margin-bottom: 10px; background: white; }
+  .m-input:focus { border-color: var(--brand); }
+  .m-input-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 4px; display: block; }
+  .m-input-sm { padding: 10px 14px; font-size: 14px; border-radius: 10px; }
+
+  /* OTP boxes */
+  .otp-row { display: flex; gap: 10px; justify-content: center; margin: 16px 0; }
+  .otp-box { width: 48px; height: 56px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; font-weight: 700; text-align: center; }
+  .otp-box.filled { border-color: var(--cta); background: var(--green-bg); }
+
+  /* Pills */
+  .m-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .m-pill-green { background: #dcfce7; color: #166534; }
+  .m-pill-red { background: #fef2f2; color: #991b1b; }
+  .m-pill-amber { background: #fef3c7; color: #92400e; }
+  .m-pill-blue { background: #dbeafe; color: #1e40af; }
+  .m-pill-grey { background: #f3f4f6; color: #4b5563; }
+
+  /* Progress bar */
+  .progress-bar { height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .progress-fill-green { background: var(--green); }
+  .progress-fill-brand { background: var(--brand); }
+  .progress-fill-red { background: var(--red); }
+
+  /* Specific styles */
+  .shift-block { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f7fafc; }
+  .shift-block:last-child { border-bottom: none; }
+  .shift-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .shift-time { font-size: 13px; font-weight: 600; width: 100px; }
+  .shift-label { font-size: 12px; color: var(--text2); flex: 1; }
+
+  .item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f7fafc; }
+  .item-row:last-child { border-bottom: none; }
+  .item-check { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .item-check.checked { background: var(--cta); border-color: var(--cta); color: white; }
+  .item-name { flex: 1; font-size: 14px; }
+  .item-qty { font-size: 13px; color: var(--text2); font-weight: 600; }
+
+  .earning-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; }
+  .earning-row.total { font-weight: 700; font-size: 16px; border-top: 2px solid var(--border); padding-top: 12px; margin-top: 4px; }
+
+  .stop-card { border-left: 3px solid var(--cta); padding: 10px 14px; margin-bottom: 8px; background: #fafafa; border-radius: 0 10px 10px 0; }
+  .stop-card.current { border-left-color: var(--brand); background: var(--amber-bg); }
+  .stop-card.done { border-left-color: var(--text3); opacity: 0.6; }
+
+  /* QR scanner viewport */
+  .qr-viewport { background: #000; height: 280px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .qr-frame { width: 200px; height: 200px; border: 3px solid var(--brand); border-radius: 20px; position: relative; }
+  .qr-corner { position: absolute; width: 30px; height: 30px; }
+  .qr-corner-tl { top: -2px; left: -2px; border-top: 4px solid var(--cta); border-left: 4px solid var(--cta); border-radius: 8px 0 0 0; }
+  .qr-corner-tr { top: -2px; right: -2px; border-top: 4px solid var(--cta); border-right: 4px solid var(--cta); border-radius: 0 8px 0 0; }
+  .qr-corner-bl { bottom: -2px; left: -2px; border-bottom: 4px solid var(--cta); border-left: 4px solid var(--cta); border-radius: 0 0 0 8px; }
+  .qr-corner-br { bottom: -2px; right: -2px; border-bottom: 4px solid var(--cta); border-right: 4px solid var(--cta); border-radius: 0 0 8px 0; }
+  .qr-line { position: absolute; left: 10%; right: 10%; height: 2px; background: var(--brand); top: 40%; animation: scanline 2s ease-in-out infinite; }
+  @keyframes scanline { 0%,100%{top:20%} 50%{top:80%} }
+
+  /* Annotation panel */
+  .annotations { width: 380px; background: #1e293b; border-radius: 16px; padding: 24px; color: #e2e8f0; font-size: 13px; line-height: 1.6; max-height: 750px; overflow-y: auto; }
+  .annotations h3 { color: var(--brand); font-size: 15px; margin-bottom: 12px; }
+  .annotations h4 { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin: 16px 0 6px; }
+  .annotations ul { padding-left: 16px; margin-bottom: 8px; }
+  .annotations li { margin-bottom: 4px; }
+  .annotations .flow-step { display: flex; gap: 10px; margin-bottom: 8px; }
+  .annotations .flow-num { width: 22px; height: 22px; background: rgba(245,197,24,0.15); color: var(--brand); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .annotations .flow-text { flex: 1; }
+  .annotations .note { background: rgba(245,197,24,0.08); border-left: 3px solid var(--brand); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 12px; }
+  .annotations code { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .a-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 14px 0; }
+
+  /* Scrollable phone body */
+  .phone-body { flex: 1; overflow-y: auto; padding-bottom: 8px; background: #f7fafc; }
+
+  /* Onboarding stepper */
+  .stepper { display: flex; padding: 12px 16px; background: white; border-bottom: 1px solid var(--border); gap: 4px; }
+  .stepper-step { flex: 1; height: 4px; border-radius: 2px; background: #edf2f7; }
+  .stepper-step.done { background: var(--cta); }
+  .stepper-step.current { background: var(--brand); }
+
+  /* Upload box */
+  .upload-box { border: 2px dashed var(--border); border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 10px; cursor: pointer; }
+  .upload-box:hover { border-color: var(--brand); background: #fffef5; }
+  .upload-icon { font-size: 32px; margin-bottom: 6px; }
+  .upload-text { font-size: 13px; color: var(--text2); }
+  .upload-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* COD badge */
+  .cod-badge { position: absolute; top: -6px; right: -6px; background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+
+  /* Pulse animation for waiting */
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+
+  .screen-content { display: flex; flex-direction: column; min-height: 100%; }
+
+  /* Settlement row */
+  .settle-option { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+  .settle-option:hover { border-color: var(--brand); }
+  .settle-option.selected { border-color: var(--cta); background: var(--green-bg); }
+  .settle-icon { font-size: 24px; }
+  .settle-label { font-weight: 600; font-size: 14px; }
+  .settle-sub { font-size: 11px; color: var(--text3); }
+
+  /* Threshold warning */
+  .threshold-banner { background: #fef2f2; border: 1px solid #fed7d7; padding: 12px 16px; margin: 0 16px 8px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+  .threshold-banner-amber { background: #fffbeb; border-color: #fde68a; }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- Screen Navigation -->
+  <div class="screen-nav">
+    <h2>Rider App Wireframes</h2>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Auth</div>
+      <div class="nav-item active" onclick="showScreen('login')"><span class="dot dot-green"></span> Login</div>
+      <div class="nav-item" onclick="showScreen('otp')"><span class="dot dot-green"></span> OTP Verify</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Onboarding</div>
+      <div class="nav-item" onclick="showScreen('profile-setup')"><span class="dot dot-blue"></span> Profile Setup</div>
+      <div class="nav-item" onclick="showScreen('documents')"><span class="dot dot-blue"></span> Documents</div>
+      <div class="nav-item" onclick="showScreen('agreement')"><span class="dot dot-blue"></span> Agreement</div>
+      <div class="nav-item" onclick="showScreen('pending')"><span class="dot dot-blue"></span> Pending Approval</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Core Loop</div>
+      <div class="nav-item" onclick="showScreen('shift-home')"><span class="dot dot-amber"></span> Shift Home</div>
+      <div class="nav-item" onclick="showScreen('qr-scan')"><span class="dot dot-amber"></span> QR Scan</div>
+      <div class="nav-item" onclick="showScreen('ready')"><span class="dot dot-amber"></span> Ready State</div>
+      <div class="nav-item" onclick="showScreen('assigned')"><span class="dot dot-red"></span> Order Assigned</div>
+      <div class="nav-item" onclick="showScreen('active-delivery')"><span class="dot dot-red"></span> Active Delivery</div>
+      <div class="nav-item" onclick="showScreen('pod')"><span class="dot dot-red"></span> Proof of Delivery</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Batch</div>
+      <div class="nav-item" onclick="showScreen('batch-assigned')"><span class="dot dot-red"></span> Batch Assigned</div>
+      <div class="nav-item" onclick="showScreen('batch-active')"><span class="dot dot-red"></span> Batch Navigation</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">COD</div>
+      <div class="nav-item" onclick="showScreen('cod-collect')"><span class="dot dot-amber"></span> Collect Cash</div>
+      <div class="nav-item" onclick="showScreen('cod-threshold')"><span class="dot dot-red"></span> Threshold Block</div>
+      <div class="nav-item" onclick="showScreen('cod-settle')"><span class="dot dot-amber"></span> Settlement</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Earnings</div>
+      <div class="nav-item" onclick="showScreen('earnings-today')"><span class="dot dot-green"></span> Today</div>
+      <div class="nav-item" onclick="showScreen('earnings-weekly')"><span class="dot dot-green"></span> Weekly</div>
+      <div class="nav-item" onclick="showScreen('rate-card')"><span class="dot dot-green"></span> Rate Card</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Profile</div>
+      <div class="nav-item" onclick="showScreen('profile')"><span class="dot dot-blue"></span> Profile</div>
+      <div class="nav-item" onclick="showScreen('checkout')"><span class="dot dot-amber"></span> Check-out</div>
+    </div>
+  </div>
+
+  <!-- Phone + Annotations -->
+  <div class="phone-area">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+
+        <!-- ===== SCREEN: LOGIN ===== -->
+        <div class="screen active" id="screen-login">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:37</span><span></span></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;background:white;">
+              <div style="text-align:center;margin-bottom:40px;">
+                <div style="font-size:36px;font-weight:900;color:var(--brand);letter-spacing:-0.03em;">BazaarNow</div>
+                <div style="font-size:14px;color:var(--text2);margin-top:4px;">Rider Partner</div>
+              </div>
+              <div style="margin-bottom:20px;">
+                <div class="m-input-label">Mobile Number</div>
+                <div style="display:flex;gap:8px;">
+                  <div style="padding:14px 12px;border:2px solid var(--border);border-radius:12px;font-size:16px;color:var(--text2);background:#f7fafc;width:70px;text-align:center;">+91</div>
+                  <input class="m-input" style="flex:1;margin-bottom:0;" placeholder="Enter 10-digit number" value="98765 43210" />
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:0;">Get OTP</button>
+              <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--text3);">By continuing, you agree to our <span style="color:var(--cta);">Terms</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: OTP ===== -->
+        <div class="screen" id="screen-otp">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:37</span><span></span></div>
+            <div style="flex:1;padding:32px 24px;background:white;">
+              <div class="back-btn" onclick="showScreen('login')">&#8592; Back</div>
+              <div style="font-size:22px;font-weight:800;margin-bottom:4px;">Verify OTP</div>
+              <div style="font-size:14px;color:var(--text2);margin-bottom:24px;">Sent to <strong>+91 98765 43210</strong></div>
+              <div class="otp-row">
+                <input class="otp-box filled" value="4" maxlength="1" />
+                <input class="otp-box filled" value="7" maxlength="1" />
+                <input class="otp-box filled" value="2" maxlength="1" />
+                <input class="otp-box filled" value="9" maxlength="1" />
+                <input class="otp-box" maxlength="1" />
+                <input class="otp-box" maxlength="1" />
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:20px 0;">Verify</button>
+              <div style="text-align:center;font-size:13px;color:var(--text3);">
+                Didn't receive? <span style="color:var(--cta);font-weight:600;">Resend in 0:28</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: PROFILE SETUP ===== -->
+        <div class="screen" id="screen-profile-setup">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:38</span><span></span></div>
+            <div class="stepper">
+              <div class="stepper-step current"></div>
+              <div class="stepper-step"></div>
+              <div class="stepper-step"></div>
+              <div class="stepper-step"></div>
+            </div>
+            <div style="padding:16px 20px;background:white;border-bottom:1px solid var(--border);">
+              <div style="font-size:18px;font-weight:700;">Your Details</div>
+              <div style="font-size:12px;color:var(--text3);">Step 1 of 4</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div style="text-align:center;margin-bottom:16px;">
+                <div style="width:80px;height:80px;border-radius:50%;background:#edf2f7;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:28px;border:3px dashed var(--border);">+</div>
+                <div style="font-size:12px;color:var(--cta);font-weight:600;margin-top:6px;">Add Photo</div>
+              </div>
+              <div class="m-input-label">Full Name</div>
+              <input class="m-input" placeholder="As on Aadhaar" value="Raju Krishnamurthy" />
+              <div class="m-input-label">Vehicle Type</div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <div style="flex:1;padding:12px;border:2px solid var(--cta);border-radius:10px;text-align:center;font-size:13px;font-weight:600;background:var(--green-bg);">Bike</div>
+                <div style="flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;text-align:center;font-size:13px;color:var(--text2);">Cycle</div>
+                <div style="flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;text-align:center;font-size:13px;color:var(--text2);">EV</div>
+              </div>
+              <div class="m-input-label">Bank Account Number</div>
+              <input class="m-input" placeholder="Enter account number" />
+              <div class="m-input-label">IFSC Code</div>
+              <input class="m-input" placeholder="e.g. SBIN0001234" />
+              <div class="m-input-label">Address</div>
+              <input class="m-input" placeholder="Current residential address" />
+              <button class="big-btn big-btn-cta" style="margin:8px 0;">Next: Documents &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: DOCUMENTS ===== -->
+        <div class="screen" id="screen-documents">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:40</span><span></span></div>
+            <div class="stepper">
+              <div class="stepper-step done"></div>
+              <div class="stepper-step current"></div>
+              <div class="stepper-step"></div>
+              <div class="stepper-step"></div>
+            </div>
+            <div style="padding:16px 20px;background:white;border-bottom:1px solid var(--border);">
+              <div style="font-size:18px;font-weight:700;">Upload Documents</div>
+              <div style="font-size:12px;color:var(--text3);">Step 2 of 4</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <!-- Aadhaar -->
+              <div style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="font-size:14px;font-weight:600;">Aadhaar Card</div>
+                  <span class="m-pill m-pill-green">Verified</span>
+                </div>
+                <div style="background:var(--green-bg);border:1px solid #c6f6d5;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:20px;">&#9989;</span>
+                  <div><div style="font-size:13px;font-weight:600;">Via DigiLocker</div><div style="font-size:11px;color:var(--text3);">XXXX XXXX 4321</div></div>
+                </div>
+              </div>
+              <!-- PAN -->
+              <div style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="font-size:14px;font-weight:600;">PAN Card</div>
+                  <span class="m-pill m-pill-amber">Pending</span>
+                </div>
+                <div class="upload-box">
+                  <div class="upload-icon">&#128247;</div>
+                  <div class="upload-text">Tap to capture or upload</div>
+                  <div class="upload-sub">Clear photo of front side</div>
+                </div>
+              </div>
+              <!-- DL -->
+              <div style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="font-size:14px;font-weight:600;">Driving License</div>
+                  <span class="m-pill m-pill-grey">Not uploaded</span>
+                </div>
+                <div class="upload-box">
+                  <div class="upload-icon">&#128247;</div>
+                  <div class="upload-text">Tap to capture or upload</div>
+                  <div class="upload-sub">Both front and back</div>
+                </div>
+              </div>
+              <!-- Selfie -->
+              <div style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="font-size:14px;font-weight:600;">Selfie</div>
+                  <span class="m-pill m-pill-grey">Required</span>
+                </div>
+                <div class="upload-box" style="background:#f7fafc;">
+                  <div class="upload-icon">&#129489;</div>
+                  <div class="upload-text">Take a clear selfie</div>
+                  <div class="upload-sub">Face clearly visible, good lighting</div>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:8px 0;">Next: Agreement &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: AGREEMENT ===== -->
+        <div class="screen" id="screen-agreement">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:42</span><span></span></div>
+            <div class="stepper">
+              <div class="stepper-step done"></div>
+              <div class="stepper-step done"></div>
+              <div class="stepper-step current"></div>
+              <div class="stepper-step"></div>
+            </div>
+            <div style="padding:16px 20px;background:white;border-bottom:1px solid var(--border);">
+              <div style="font-size:18px;font-weight:700;">Contractor Agreement</div>
+              <div style="font-size:12px;color:var(--text3);">Step 3 of 4 — Review and sign</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div style="background:#f7fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;min-height:300px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;">Delivery Partner Agreement</div>
+                <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+                  This agreement is between BazaarNow ("Company") and the undersigned delivery partner ("Partner")...<br><br>
+                  <strong>1. Services</strong><br>
+                  Partner agrees to provide last-mile delivery services...<br><br>
+                  <strong>2. Compensation</strong><br>
+                  Partner will be compensated per the applicable rate card...<br><br>
+                  <div style="color:var(--text3);text-align:center;padding:16px;">&#8942;<br>Scroll to read full agreement</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:24px;height:24px;border:2px solid var(--cta);border-radius:6px;background:var(--cta);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">&#10003;</div>
+                <div style="font-size:13px;">I have read and agree to the terms</div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:0;">Sign via DocuSign &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: PENDING APPROVAL ===== -->
+        <div class="screen" id="screen-pending">
+          <div class="screen-content">
+            <div class="status-bar"><span>10:45</span><span></span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:white;text-align:center;">
+              <div style="font-size:64px;margin-bottom:16px;">&#9203;</div>
+              <div style="font-size:22px;font-weight:800;margin-bottom:8px;">Under Review</div>
+              <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:24px;">
+                Your application is being verified. This usually takes <strong>24-48 hours</strong>.
+              </div>
+              <div style="background:#f7fafc;border-radius:12px;padding:16px;width:100%;text-align:left;margin-bottom:16px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Status</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="m-pill m-pill-green">Done</span> <span style="font-size:13px;">Profile submitted</span></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="m-pill m-pill-green">Done</span> <span style="font-size:13px;">Documents uploaded</span></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="m-pill m-pill-green">Done</span> <span style="font-size:13px;">Agreement signed</span></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="m-pill m-pill-amber">In progress</span> <span style="font-size:13px;">Background verification</span></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span class="m-pill m-pill-grey">Pending</span> <span style="font-size:13px;">Store manager approval</span></div>
+              </div>
+              <div style="font-size:12px;color:var(--text3);">We'll notify you once approved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: SHIFT HOME ===== -->
+        <div class="screen" id="screen-shift-home">
+          <div class="screen-content">
+            <div class="status-bar"><span>6:02</span><span></span></div>
+            <div class="header">
+              <div class="header-sub">Good morning, Raju</div>
+              <div class="header-title">Your Shift</div>
+            </div>
+            <div class="phone-body">
+              <!-- Today's shift card -->
+              <div class="m-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div>
+                    <div style="font-size:16px;font-weight:700;">Day Shift</div>
+                    <div style="font-size:12px;color:var(--text3);">6:00 AM – 6:00 PM</div>
+                  </div>
+                  <span class="m-pill m-pill-green">Checked In</span>
+                </div>
+                <!-- Hours progress -->
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                  <span style="font-weight:600;">3.2h worked</span>
+                  <span style="color:var(--text3);">10h required</span>
+                </div>
+                <div class="progress-bar" style="margin-bottom:12px;">
+                  <div class="progress-fill progress-fill-green" style="width:32%;"></div>
+                </div>
+                <!-- Shift blocks -->
+                <div class="shift-block">
+                  <div class="shift-dot" style="background:var(--red);"></div>
+                  <div class="shift-time">6–7 AM</div>
+                  <div class="shift-label">Mandatory</div>
+                  <span class="m-pill m-pill-green" style="font-size:10px;">Done</span>
+                </div>
+                <div class="shift-block">
+                  <div class="shift-dot" style="background:var(--green);"></div>
+                  <div class="shift-time">7 AM–3 PM</div>
+                  <div class="shift-label">Flexible</div>
+                  <span style="font-size:12px;font-weight:600;color:var(--cta);">Active</span>
+                </div>
+                <div class="shift-block">
+                  <div class="shift-dot" style="background:var(--red);"></div>
+                  <div class="shift-time">3–6 PM</div>
+                  <div class="shift-label">Mandatory</div>
+                  <span class="m-pill m-pill-grey" style="font-size:10px;">Later</span>
+                </div>
+              </div>
+              <!-- Quick stats -->
+              <div style="display:flex;gap:8px;margin:0 16px;">
+                <div style="flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+                  <div style="font-size:22px;font-weight:800;color:var(--cta);">4</div>
+                  <div style="font-size:11px;color:var(--text3);">Deliveries</div>
+                </div>
+                <div style="flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+                  <div style="font-size:22px;font-weight:800;">&#8377;342</div>
+                  <div style="font-size:11px;color:var(--text3);">Earned</div>
+                </div>
+                <div style="flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;position:relative;">
+                  <div style="font-size:22px;font-weight:800;color:var(--amber);">&#8377;800</div>
+                  <div style="font-size:11px;color:var(--text3);">Cash in hand</div>
+                </div>
+              </div>
+              <!-- Tip card -->
+              <div class="m-card" style="background:var(--amber-bg);border-color:#fde68a;">
+                <div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Tip</div>
+                <div style="font-size:13px;color:var(--text2);">Complete at least 2h after 3 PM to avoid penalty</div>
+              </div>
+              <button class="big-btn big-btn-brand" onclick="showScreen('qr-scan')">Scan QR — Ready for Orders</button>
+            </div>
+            <div class="bottom-nav">
+              <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#127968;</span>Shift</div>
+              <div class="bottom-nav-item" onclick="showScreen('earnings-today')"><span class="bottom-nav-icon">&#128176;</span>Earnings</div>
+              <div class="bottom-nav-item" onclick="showScreen('profile')"><span class="bottom-nav-icon">&#128100;</span>Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: QR SCAN ===== -->
+        <div class="screen" id="screen-qr-scan">
+          <div class="screen-content">
+            <div class="status-bar" style="background:#000;color:white;"><span>6:02</span><span></span></div>
+            <div class="qr-viewport">
+              <div class="qr-frame">
+                <div class="qr-corner qr-corner-tl"></div>
+                <div class="qr-corner qr-corner-tr"></div>
+                <div class="qr-corner qr-corner-bl"></div>
+                <div class="qr-corner qr-corner-br"></div>
+                <div class="qr-line"></div>
+              </div>
+            </div>
+            <div style="flex:1;background:white;padding:24px;text-align:center;">
+              <div style="font-size:18px;font-weight:700;margin-bottom:4px;">Scan Store QR Code</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Point your camera at the QR code at the store entrance</div>
+              <div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;">
+                <div style="text-align:center;">
+                  <div style="width:44px;height:44px;background:#f7fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:20px;">&#128294;</div>
+                  <div style="font-size:11px;color:var(--text3);">Torch</div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="width:44px;height:44px;background:#f7fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:20px;">&#128247;</div>
+                  <div style="font-size:11px;color:var(--text3);">Gallery</div>
+                </div>
+              </div>
+              <div class="back-btn" onclick="showScreen('shift-home')" style="justify-content:center;display:flex;">&#8592; Back to Shift</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: READY STATE ===== -->
+        <div class="screen" id="screen-ready">
+          <div class="screen-content">
+            <div class="status-bar"><span>6:05</span><span></span></div>
+            <div class="header">
+              <div class="header-title">Ready</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:white;text-align:center;">
+              <div style="width:120px;height:120px;border-radius:50%;background:var(--green-bg);border:3px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:16px;" class="pulse">&#9989;</div>
+              <div style="font-size:22px;font-weight:800;margin-bottom:4px;">Waiting for Order</div>
+              <div style="font-size:14px;color:var(--text2);margin-bottom:24px;">You'll be notified when an order is ready</div>
+              <div style="background:#f7fafc;border-radius:12px;padding:14px 20px;width:100%;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="color:var(--text3);">Checked in at</span><span style="font-weight:600;">6:02 AM</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="color:var(--text3);">Idle time</span><span style="font-weight:600;">3 min</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="color:var(--text3);">Position in queue</span><span style="font-weight:600;">#2</span>
+                </div>
+              </div>
+            </div>
+            <div style="padding:0 16px 16px;">
+              <button class="big-btn big-btn-outline" style="margin:0 0 8px;">Take a Break</button>
+            </div>
+            <div class="bottom-nav">
+              <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#127968;</span>Shift</div>
+              <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128176;</span>Earnings</div>
+              <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128100;</span>Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: ORDER ASSIGNED ===== -->
+        <div class="screen" id="screen-assigned">
+          <div class="screen-content">
+            <div class="status-bar" style="background:var(--cta);color:white;"><span>6:08</span><span></span></div>
+            <div style="background:var(--cta);padding:16px 20px 20px;color:white;">
+              <div style="font-size:12px;opacity:0.8;">NEW ORDER</div>
+              <div style="font-size:22px;font-weight:800;">Order #BN-1042</div>
+            </div>
+            <div class="phone-body">
+              <!-- Distance & pay -->
+              <div style="display:flex;gap:0;margin:0 16px 8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+                <div style="flex:1;background:white;padding:14px;text-align:center;border-right:1px solid var(--border);">
+                  <div style="font-size:20px;font-weight:800;">2.4 km</div>
+                  <div style="font-size:11px;color:var(--text3);">Distance</div>
+                </div>
+                <div style="flex:1;background:white;padding:14px;text-align:center;border-right:1px solid var(--border);">
+                  <div style="font-size:20px;font-weight:800;">12 min</div>
+                  <div style="font-size:11px;color:var(--text3);">ETA</div>
+                </div>
+                <div style="flex:1;background:white;padding:14px;text-align:center;">
+                  <div style="font-size:20px;font-weight:800;color:var(--cta);">&#8377;65</div>
+                  <div style="font-size:11px;color:var(--text3);">Payout</div>
+                </div>
+              </div>
+              <!-- Items -->
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">3 Items</div>
+                <div class="item-row"><div class="item-check">&#10003;</div><div class="item-name">Onion (Erulli) 1kg</div><div class="item-qty">x1</div></div>
+                <div class="item-row"><div class="item-check">&#10003;</div><div class="item-name">Nandini Toned Milk 500ml</div><div class="item-qty">x2</div></div>
+                <div class="item-row"><div class="item-check">&#10003;</div><div class="item-name">Tomato (Naati) 500g</div><div class="item-qty">x1</div></div>
+              </div>
+              <!-- Customer -->
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Deliver to</div>
+                <div style="font-size:15px;font-weight:600;">Priya M.</div>
+                <div style="font-size:13px;color:var(--text2);">Flat 302, Daffodils Housing Society, Koramangala 4th Block</div>
+                <div style="margin-top:6px;">
+                  <span class="m-pill m-pill-amber">COD &#8377;72</span>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" onclick="showScreen('active-delivery')">Pick Up & Navigate &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: ACTIVE DELIVERY ===== -->
+        <div class="screen" id="screen-active-delivery">
+          <div class="screen-content">
+            <div class="status-bar" style="background:var(--cta);color:white;"><span>6:12</span><span></span></div>
+            <!-- Map placeholder -->
+            <div style="height:280px;background:linear-gradient(135deg,#e2e8f0,#cbd5e0);display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="font-size:14px;color:var(--text2);">Google Maps Route View</div>
+              <div style="position:absolute;bottom:12px;left:12px;background:white;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <span style="color:var(--cta);">2.4 km</span> &middot; 8 min left
+              </div>
+            </div>
+            <div class="phone-body">
+              <div class="m-card" style="margin-top:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div style="font-size:15px;font-weight:700;">Order #BN-1042</div>
+                  <span class="m-pill m-pill-blue">En Route</span>
+                </div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Priya M. — Flat 302, Daffodils</div>
+                <div style="font-size:13px;"><span class="m-pill m-pill-amber" style="font-size:10px;">COD &#8377;72</span> &middot; 3 items</div>
+              </div>
+              <div style="display:flex;gap:8px;margin:0 16px;">
+                <button class="big-btn big-btn-cta" style="flex:1;margin:0;font-size:14px;" onclick="showScreen('pod')">Arrived &#10003;</button>
+                <button class="big-btn big-btn-outline" style="width:56px;margin:0;font-size:18px;padding:14px;">&#128222;</button>
+                <button class="big-btn big-btn-outline" style="width:56px;margin:0;font-size:18px;padding:14px;">&#128506;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: PROOF OF DELIVERY ===== -->
+        <div class="screen" id="screen-pod">
+          <div class="screen-content">
+            <div class="status-bar"><span>6:20</span><span></span></div>
+            <div class="header-white">
+              <div class="header-title">Confirm Delivery</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Order #BN-1042 &middot; Priya M.</div>
+              <!-- COD -->
+              <div style="background:var(--amber-bg);border:1px solid #fde68a;border-radius:12px;padding:14px;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:4px;">COLLECT CASH</div>
+                <div style="font-size:28px;font-weight:800;">&#8377;72</div>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                  <button style="flex:1;padding:10px;border:2px solid var(--cta);border-radius:10px;background:var(--green-bg);font-weight:600;font-size:13px;cursor:pointer;">Cash &#8377;72</button>
+                  <button style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:white;font-size:13px;cursor:pointer;color:var(--text2);">Paid Online</button>
+                </div>
+              </div>
+              <!-- Delivery proof -->
+              <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Delivery Proof</div>
+              <div style="display:flex;gap:8px;margin-bottom:14px;">
+                <div style="flex:1;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;">
+                  <div style="font-size:24px;">&#128247;</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px;">Photo</div>
+                </div>
+                <div style="flex:1;border:2px solid var(--cta);border-radius:12px;padding:20px;text-align:center;background:var(--green-bg);">
+                  <div style="font-size:24px;">&#128273;</div>
+                  <div style="font-size:11px;color:var(--cta);font-weight:600;margin-top:4px;">OTP: 4829</div>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:0;" onclick="showScreen('shift-home')">Complete Delivery &#10003;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: BATCH ASSIGNED ===== -->
+        <div class="screen" id="screen-batch-assigned">
+          <div class="screen-content">
+            <div class="status-bar" style="background:var(--cta);color:white;"><span>6:30</span><span></span></div>
+            <div style="background:var(--cta);padding:16px 20px 20px;color:white;">
+              <div style="font-size:12px;opacity:0.8;">BATCH ORDER</div>
+              <div style="font-size:22px;font-weight:800;">2 Orders &middot; 3 Segments</div>
+            </div>
+            <div class="phone-body">
+              <div style="display:flex;gap:0;margin:0 16px 8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+                <div style="flex:1;background:white;padding:14px;text-align:center;border-right:1px solid var(--border);">
+                  <div style="font-size:20px;font-weight:800;">4.1 km</div>
+                  <div style="font-size:11px;color:var(--text3);">Total</div>
+                </div>
+                <div style="flex:1;background:white;padding:14px;text-align:center;border-right:1px solid var(--border);">
+                  <div style="font-size:20px;font-weight:800;">22 min</div>
+                  <div style="font-size:11px;color:var(--text3);">ETA</div>
+                </div>
+                <div style="flex:1;background:white;padding:14px;text-align:center;">
+                  <div style="font-size:20px;font-weight:800;color:var(--cta);">&#8377;110</div>
+                  <div style="font-size:11px;color:var(--text3);">Payout</div>
+                </div>
+              </div>
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:10px;">Route</div>
+                <div class="stop-card current">
+                  <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:14px;">Stop 1 — Priya M.</span><span class="m-pill m-pill-amber" style="font-size:10px;">COD &#8377;72</span></div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px;">Flat 302, Daffodils — 1.8 km</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px;">3 items: Onion, Milk x2, Tomato</div>
+                </div>
+                <div class="stop-card">
+                  <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:14px;">Stop 2 — Amit K.</span><span class="m-pill m-pill-green" style="font-size:10px;">Prepaid</span></div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px;">HSR Layout, Sector 3 — 2.3 km</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px;">2 items: Mushroom, Eggs</div>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" onclick="showScreen('batch-active')">Start Route &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: BATCH ACTIVE ===== -->
+        <div class="screen" id="screen-batch-active">
+          <div class="screen-content">
+            <div class="status-bar" style="background:var(--cta);color:white;"><span>6:35</span><span></span></div>
+            <div style="height:260px;background:linear-gradient(135deg,#e2e8f0,#cbd5e0);display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="font-size:14px;color:var(--text2);">Waypoint Route — Stop 1 of 2</div>
+              <div style="position:absolute;top:12px;right:12px;background:white;border-radius:10px;padding:6px 12px;font-weight:700;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <span style="color:var(--brand);">&#9679;</span> 1 / 2
+              </div>
+            </div>
+            <div class="phone-body">
+              <div class="m-card" style="margin-top:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                  <div style="width:24px;height:24px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;">1</div>
+                  <div style="font-size:15px;font-weight:700;">Priya M.</div>
+                  <span class="m-pill m-pill-amber" style="font-size:10px;">COD &#8377;72</span>
+                </div>
+                <div style="font-size:12px;color:var(--text2);">Flat 302, Daffodils — 3 items</div>
+              </div>
+              <div style="display:flex;gap:8px;margin:0 16px;">
+                <button class="big-btn big-btn-cta" style="flex:1;margin:0;font-size:14px;">Arrived at Stop 1</button>
+                <button class="big-btn big-btn-outline" style="width:56px;margin:0;font-size:18px;padding:14px;">&#128506;</button>
+              </div>
+              <div style="padding:12px 16px;">
+                <div style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Next</div>
+                <div style="font-size:13px;"><strong>Stop 2:</strong> Amit K. — HSR Layout (2.3 km away)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: COD COLLECT ===== -->
+        <div class="screen" id="screen-cod-collect">
+          <div class="screen-content">
+            <div class="status-bar"><span>6:22</span><span></span></div>
+            <div class="header-white">
+              <div class="header-title">Collect Cash</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:12px;color:var(--text3);text-transform:uppercase;font-weight:600;">Amount to collect</div>
+                <div style="font-size:44px;font-weight:800;color:var(--text);">&#8377;72</div>
+              </div>
+              <div class="m-input-label">Cash received from customer</div>
+              <input class="m-input" style="font-size:24px;font-weight:700;text-align:center;" value="72" />
+              <div style="display:flex;gap:8px;margin-bottom:16px;">
+                <button style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:13px;cursor:pointer;">Exact &#8377;72</button>
+                <button style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:13px;cursor:pointer;">&#8377;100</button>
+                <button style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:13px;cursor:pointer;">&#8377;200</button>
+              </div>
+              <div style="background:#f7fafc;border-radius:10px;padding:12px;margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                  <span style="color:var(--text3);">Cash in hand before</span><span>&#8377;800</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;">
+                  <span>Cash in hand after</span><span>&#8377;872</span>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:0;">Confirm &#8377;72 Collected</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: COD THRESHOLD ===== -->
+        <div class="screen" id="screen-cod-threshold">
+          <div class="screen-content">
+            <div class="status-bar" style="background:var(--red);color:white;"><span>11:15</span><span></span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:white;text-align:center;">
+              <div style="width:100px;height:100px;border-radius:50%;background:var(--red-bg);border:3px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:16px;">&#9888;</div>
+              <div style="font-size:22px;font-weight:800;margin-bottom:4px;">Settle Cash First</div>
+              <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
+                Your cash in hand is <strong style="color:var(--red);">&#8377;2,150</strong> which exceeds the &#8377;2,000 limit. Settle before accepting new orders.
+              </div>
+              <div style="background:#f7fafc;border-radius:12px;padding:14px;width:100%;margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                  <span style="color:var(--text3);">Cash in hand</span><span style="font-weight:700;color:var(--red);">&#8377;2,150</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="color:var(--text3);">Threshold</span><span style="font-weight:600;">&#8377;2,000</span>
+                </div>
+              </div>
+              <button class="big-btn big-btn-cta" style="margin:0;width:100%;" onclick="showScreen('cod-settle')">Settle Now &#8594;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: COD SETTLE ===== -->
+        <div class="screen" id="screen-cod-settle">
+          <div class="screen-content">
+            <div class="status-bar"><span>11:16</span><span></span></div>
+            <div class="header-white">
+              <div class="back-btn" onclick="showScreen('shift-home')">&#8592; Back</div>
+              <div class="header-title">Settle Cash</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:12px;color:var(--text3);text-transform:uppercase;font-weight:600;">Amount to settle</div>
+                <div style="font-size:44px;font-weight:800;">&#8377;2,150</div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Payment Method</div>
+              <div class="settle-option selected">
+                <div class="settle-icon">&#128178;</div>
+                <div style="flex:1;"><div class="settle-label">Google Pay</div><div class="settle-sub">Pay to store UPI ID</div></div>
+                <div style="color:var(--cta);font-size:18px;">&#10003;</div>
+              </div>
+              <div class="settle-option">
+                <div class="settle-icon">&#127974;</div>
+                <div style="flex:1;"><div class="settle-label">Bank Transfer</div><div class="settle-sub">NEFT / IMPS to store account</div></div>
+              </div>
+              <div class="settle-option">
+                <div class="settle-icon">&#128181;</div>
+                <div style="flex:1;"><div class="settle-label">Cash to Manager</div><div class="settle-sub">Hand over at store</div></div>
+              </div>
+              <div class="m-input-label" style="margin-top:12px;">Transaction ID / Reference</div>
+              <input class="m-input" placeholder="Enter GPay transaction ID" />
+              <button class="big-btn big-btn-cta" style="margin:8px 0 0;">Confirm Settlement</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: EARNINGS TODAY ===== -->
+        <div class="screen" id="screen-earnings-today">
+          <div class="screen-content">
+            <div class="status-bar"><span>2:30</span><span></span></div>
+            <div class="header">
+              <div class="header-title">Earnings</div>
+              <div style="display:flex;gap:0;margin-top:8px;">
+                <div style="padding:6px 16px;background:rgba(0,0,0,0.15);border-radius:8px 0 0 8px;font-size:13px;font-weight:600;color:#1a202c;">Today</div>
+                <div style="padding:6px 16px;background:rgba(0,0,0,0.06);border-radius:0 8px 8px 0;font-size:13px;color:rgba(0,0,0,0.5);cursor:pointer;" onclick="showScreen('earnings-weekly')">Weekly</div>
+              </div>
+            </div>
+            <div class="phone-body">
+              <div class="m-card" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text3);text-transform:uppercase;font-weight:600;">Today's Earnings</div>
+                <div style="font-size:40px;font-weight:800;color:var(--cta);margin:4px 0;">&#8377;542</div>
+                <div style="font-size:12px;color:var(--text2);">7 deliveries &middot; 6.2h worked</div>
+              </div>
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:10px;">Breakdown</div>
+                <div class="earning-row"><span>Base pay (7 orders)</span><span>&#8377;280</span></div>
+                <div class="earning-row"><span>Forward distance (14.2 km)</span><span>&#8377;213</span></div>
+                <div class="earning-row"><span>Reverse distance (8.1 km)</span><span>&#8377;97</span></div>
+                <div class="earning-row"><span>Batch bonus (1 batch)</span><span style="color:var(--cta);">+&#8377;15</span></div>
+                <div class="earning-row"><span style="color:var(--red);">Late penalty</span><span style="color:var(--red);">-&#8377;50</span></div>
+                <div class="earning-row"><span style="color:var(--red);">Uniform missing</span><span style="color:var(--red);">-&#8377;13</span></div>
+                <div class="earning-row total"><span>Net Earnings</span><span style="color:var(--cta);">&#8377;542</span></div>
+              </div>
+              <div class="m-card" style="background:#f7fafc;">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Cash Status</div>
+                <div class="earning-row"><span>COD collected</span><span>&#8377;1,540</span></div>
+                <div class="earning-row"><span>Settled</span><span style="color:var(--green);">&#8377;1,200</span></div>
+                <div class="earning-row" style="font-weight:600;"><span>In hand</span><span style="color:var(--amber);">&#8377;340</span></div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <div class="bottom-nav-item" onclick="showScreen('shift-home')"><span class="bottom-nav-icon">&#127968;</span>Shift</div>
+              <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#128176;</span>Earnings</div>
+              <div class="bottom-nav-item" onclick="showScreen('profile')"><span class="bottom-nav-icon">&#128100;</span>Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: EARNINGS WEEKLY ===== -->
+        <div class="screen" id="screen-earnings-weekly">
+          <div class="screen-content">
+            <div class="status-bar"><span>2:30</span><span></span></div>
+            <div class="header">
+              <div class="header-title">Earnings</div>
+              <div style="display:flex;gap:0;margin-top:8px;">
+                <div style="padding:6px 16px;background:rgba(0,0,0,0.06);border-radius:8px 0 0 8px;font-size:13px;color:rgba(0,0,0,0.5);cursor:pointer;" onclick="showScreen('earnings-today')">Today</div>
+                <div style="padding:6px 16px;background:rgba(0,0,0,0.15);border-radius:0 8px 8px 0;font-size:13px;font-weight:600;color:#1a202c;">Weekly</div>
+              </div>
+            </div>
+            <div class="phone-body">
+              <div class="m-card" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text3);">This Week (Mar 25–31)</div>
+                <div style="font-size:40px;font-weight:800;margin:4px 0;">&#8377;3,420</div>
+                <div style="font-size:12px;color:var(--text2);">38 deliveries &middot; 52h worked</div>
+              </div>
+              <!-- Bar chart -->
+              <div class="m-card">
+                <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-bottom:4px;">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">480</div>
+                    <div style="width:100%;background:var(--cta);border-radius:4px 4px 0 0;height:56px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Mon</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">520</div>
+                    <div style="width:100%;background:var(--cta);border-radius:4px 4px 0 0;height:64px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Tue</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">450</div>
+                    <div style="width:100%;background:var(--cta);border-radius:4px 4px 0 0;height:52px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Wed</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">560</div>
+                    <div style="width:100%;background:var(--cta);border-radius:4px 4px 0 0;height:68px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Thu</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">610</div>
+                    <div style="width:100%;background:var(--cta);border-radius:4px 4px 0 0;height:76px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Fri</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;font-weight:600;">542</div>
+                    <div style="width:100%;background:var(--brand);border-radius:4px 4px 0 0;height:66px;"></div>
+                    <div style="font-size:10px;font-weight:600;">Today</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div style="font-size:10px;color:var(--text3);">—</div>
+                    <div style="width:100%;background:#edf2f7;border-radius:4px 4px 0 0;height:8px;"></div>
+                    <div style="font-size:10px;color:var(--text3);">Sun</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Settlements -->
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Settlements</div>
+                <div class="earning-row"><span>Mon — GPay</span><span style="color:var(--green);">&#8377;1,200</span></div>
+                <div class="earning-row"><span>Wed — Cash to manager</span><span style="color:var(--green);">&#8377;980</span></div>
+                <div class="earning-row"><span>Fri — GPay</span><span style="color:var(--green);">&#8377;1,540</span></div>
+                <div class="earning-row" style="font-weight:600;"><span>Unsettled</span><span style="color:var(--amber);">&#8377;340</span></div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <div class="bottom-nav-item" onclick="showScreen('shift-home')"><span class="bottom-nav-icon">&#127968;</span>Shift</div>
+              <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#128176;</span>Earnings</div>
+              <div class="bottom-nav-item" onclick="showScreen('profile')"><span class="bottom-nav-icon">&#128100;</span>Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: RATE CARD ===== -->
+        <div class="screen" id="screen-rate-card">
+          <div class="screen-content">
+            <div class="status-bar"><span>2:32</span><span></span></div>
+            <div class="header-white">
+              <div class="back-btn" onclick="showScreen('earnings-today')">&#8592; Back</div>
+              <div class="header-title">Rate Card</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div class="m-pill m-pill-blue" style="margin-bottom:12px;">Full-time rates</div>
+              <div class="m-card" style="margin:0 0 10px;background:var(--green-bg);border-color:#c6f6d5;">
+                <div style="font-size:12px;font-weight:600;color:var(--cta);margin-bottom:6px;">YOUR PAY FORMULA</div>
+                <div style="font-size:14px;font-weight:600;font-family:monospace;background:white;padding:10px;border-radius:8px;">
+                  base + (fwd_km × &#8377;15) + (rev_km × &#8377;12) - penalties
+                </div>
+              </div>
+              <div class="m-card" style="margin:0 0 10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Rates</div>
+                <div class="earning-row"><span>Base pay per order</span><span style="font-weight:700;">&#8377;40</span></div>
+                <div class="earning-row"><span>Forward (per km)</span><span style="font-weight:700;">&#8377;15</span></div>
+                <div class="earning-row"><span>Reverse (per km)</span><span style="font-weight:700;">&#8377;12</span></div>
+              </div>
+              <div class="m-card" style="margin:0 0 10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Batch Bonus</div>
+                <div class="earning-row"><span>1 order = 2 segments</span><span>Standard pay</span></div>
+                <div class="earning-row"><span>2 orders = 3 segments</span><span style="color:var(--cta);font-weight:600;">+50% on 2nd</span></div>
+                <div class="earning-row"><span>3 orders = 4 segments</span><span style="color:var(--cta);font-weight:600;">+33% on 3rd</span></div>
+              </div>
+              <div class="m-card" style="margin:0;background:#f7fafc;">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Example</div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+                  Order: 2.4 km forward, 1.8 km reverse<br>
+                  = &#8377;40 + (2.4 × &#8377;15) + (1.8 × &#8377;12)<br>
+                  = &#8377;40 + &#8377;36 + &#8377;21.6<br>
+                  = <strong style="color:var(--cta);">&#8377;97.60</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: PROFILE ===== -->
+        <div class="screen" id="screen-profile">
+          <div class="screen-content">
+            <div class="status-bar"><span>2:35</span><span></span></div>
+            <div class="header">
+              <div class="header-title">Profile</div>
+            </div>
+            <div class="phone-body">
+              <div class="m-card" style="text-align:center;">
+                <div style="width:70px;height:70px;border-radius:50%;background:#edf2f7;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:28px;">&#128100;</div>
+                <div style="font-size:17px;font-weight:700;">Raju Krishnamurthy</div>
+                <div style="font-size:12px;color:var(--text3);">R001 &middot; Full-time &middot; Bike</div>
+                <div style="margin-top:6px;"><span class="m-pill m-pill-green">Active</span></div>
+              </div>
+              <div class="m-card">
+                <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Quick Actions</div>
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:14px;">Shift History</span><span style="color:var(--text3);">&#8250;</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:14px;">Request Leave</span><span style="color:var(--text3);">&#8250;</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="showScreen('rate-card')"><span style="font-size:14px;">Rate Card</span><span style="color:var(--text3);">&#8250;</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:14px;">Documents</span><span style="color:var(--text3);">&#8250;</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;"><span style="font-size:14px;">Refer a Friend</span><span style="color:var(--cta);">&#8377;500 bonus &#8250;</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0;cursor:pointer;"><span style="font-size:14px;">Edit Profile</span><span style="color:var(--text3);">&#8250;</span></div>
+                </div>
+              </div>
+              <button class="big-btn big-btn-outline" style="color:var(--red);border-color:#fed7d7;" onclick="showScreen('checkout')">Check Out & End Shift</button>
+            </div>
+            <div class="bottom-nav">
+              <div class="bottom-nav-item" onclick="showScreen('shift-home')"><span class="bottom-nav-icon">&#127968;</span>Shift</div>
+              <div class="bottom-nav-item" onclick="showScreen('earnings-today')"><span class="bottom-nav-icon">&#128176;</span>Earnings</div>
+              <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#128100;</span>Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SCREEN: CHECKOUT ===== -->
+        <div class="screen" id="screen-checkout">
+          <div class="screen-content">
+            <div class="status-bar"><span>6:02</span><span></span></div>
+            <div class="header-white">
+              <div class="header-title">End Shift</div>
+            </div>
+            <div class="phone-body" style="padding:16px 20px;">
+              <div class="m-card" style="margin:0 0 12px;text-align:center;">
+                <div style="font-size:12px;color:var(--text3);text-transform:uppercase;font-weight:600;">Shift Summary</div>
+                <div style="font-size:36px;font-weight:800;color:var(--cta);margin:4px 0;">&#8377;542</div>
+                <div style="font-size:13px;color:var(--text2);">Net earnings today</div>
+              </div>
+              <div class="m-card" style="margin:0 0 12px;">
+                <div class="earning-row"><span style="color:var(--text3);">Hours worked</span><span style="font-weight:600;">9.8h / 10h</span></div>
+                <div class="earning-row"><span style="color:var(--text3);">Deliveries</span><span style="font-weight:600;">7</span></div>
+                <div class="earning-row"><span style="color:var(--text3);">Mandatory 6–7 AM</span><span class="m-pill m-pill-green" style="font-size:10px;">Met</span></div>
+                <div class="earning-row"><span style="color:var(--text3);">Mandatory 3–6 PM</span><span class="m-pill m-pill-green" style="font-size:10px;">Met</span></div>
+                <div class="earning-row"><span style="color:var(--text3);">Penalties</span><span style="color:var(--red);font-weight:600;">-&#8377;63</span></div>
+              </div>
+              <!-- COD check -->
+              <div style="background:var(--green-bg);border:1px solid #c6f6d5;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">&#9989;</span>
+                <div><div style="font-size:13px;font-weight:600;color:var(--green);">COD Settled</div><div style="font-size:11px;color:var(--text3);">No cash in hand</div></div>
+              </div>
+              <button class="big-btn big-btn-red" style="margin:0;">Confirm Check-out</button>
+              <div style="text-align:center;margin-top:10px;">
+                <span style="font-size:13px;color:var(--text2);cursor:pointer;" onclick="showScreen('shift-home')">Cancel — stay on shift</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-home"></div>
+      </div>
+
+      <!-- Annotations Panel -->
+      <div class="annotations" id="annotations-panel">
+        <!-- Login annotations (default) -->
+        <div id="ann-login" class="ann active">
+          <h3>1. Login Screen</h3>
+          <h4>Screen: FL-74</h4>
+          <h4>Purpose</h4>
+          <p>Single entry point. Phone number only — no email, no password. Riders don't remember passwords.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider opens app</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Enters 10-digit mobile number</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Taps "Get OTP" &rarr; API sends SMS</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Redirects to OTP screen</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li><strong>Country code locked to +91</strong> (India-only V1)</li>
+            <li>Phone field auto-formats with space: <code>98765 43210</code></li>
+            <li>CTA is full-width, high contrast green — impossible to miss</li>
+            <li>Logo + "Rider Partner" sets context (not customer app)</li>
+            <li>T&C link required legally, small and non-blocking</li>
+          </ul>
+          <hr class="a-divider">
+          <h4>Error States to Design</h4>
+          <ul>
+            <li>Invalid number (< 10 digits): inline error below field</li>
+            <li>Rate limited (too many OTPs): toast message with cooldown</li>
+            <li>Network failure: retry prompt</li>
+            <li>Number not registered + new user: proceed to onboarding</li>
+            <li>Number registered + existing user: proceed to shift home</li>
+          </ul>
+          <div class="note">Keyboard should auto-open on screen load. Number pad only, not full keyboard.</div>
+        </div>
+
+        <div id="ann-otp" class="ann">
+          <h3>2. OTP Verification</h3>
+          <h4>Screen: FL-74</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">6-digit OTP auto-reads from SMS (Android)</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">If auto-read fails, rider types manually</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Auto-submits when 6 digits entered</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>New user</strong> &rarr; Profile Setup (onboarding)</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text"><strong>Existing user</strong> &rarr; Shift Home</div></div>
+          <div class="flow-step"><div class="flow-num">6</div><div class="flow-text"><strong>Existing + unsettled COD</strong> &rarr; COD Settle screen (blocked)</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>6 individual boxes, not one input field — clearer for low-literacy users</li>
+            <li>Auto-advance cursor to next box</li>
+            <li>Resend timer: 30 seconds, then "Resend" becomes tappable</li>
+            <li>"Back" changes phone number</li>
+            <li>Phone number shown in bold — rider confirms it's correct</li>
+          </ul>
+          <div class="note">Critical gate: if rider has unsettled COD from last shift, login succeeds but immediately shows COD settle screen. Cannot skip.</div>
+        </div>
+
+        <div id="ann-profile-setup" class="ann">
+          <h3>3. Profile Setup</h3>
+          <h4>Screen: FL-75 &middot; Step 1/4</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">First-time user lands here after OTP</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Fills name, photo, vehicle type, bank details</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Taps "Next" &rarr; Documents screen</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li><strong>Progress stepper</strong> at top — rider knows 4 steps total</li>
+            <li>Photo: camera or gallery picker. Circular crop.</li>
+            <li>Vehicle type: big tap targets, radio-style selection</li>
+            <li>Bank details: needed for payouts. Validate IFSC format inline.</li>
+            <li>All fields required. CTA stays disabled until all filled.</li>
+            <li>Data persists if rider leaves and returns — <strong>save draft on every field blur</strong></li>
+          </ul>
+          <div class="note">Name must match Aadhaar. Show hint: "As on your Aadhaar card"</div>
+        </div>
+
+        <div id="ann-documents" class="ann">
+          <h3>4. Document Upload</h3>
+          <h4>Screen: FL-76 &middot; Step 2/4</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Aadhaar: DigiLocker (preferred) or camera upload</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">PAN: camera capture (front side)</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">DL: camera capture (front + back)</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Selfie: front camera, liveness check placeholder</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Each doc shows status: <strong>Verified</strong> (green), <strong>Pending</strong> (amber), <strong>Not uploaded</strong> (grey)</li>
+            <li>DigiLocker for Aadhaar = one-tap verification, shows masked number</li>
+            <li>Camera: overlay guide frame so rider captures correctly</li>
+            <li>Upload progress indicator per document</li>
+            <li>Retry on blurry/unclear photos</li>
+            <li>Can proceed with PAN pending — gets verified async</li>
+          </ul>
+          <div class="note">DigiLocker integration is the gold standard. If rider doesn't have DigiLocker, fallback to manual photo + async verification (24-48h).</div>
+        </div>
+
+        <div id="ann-agreement" class="ann">
+          <h3>5. Contractor Agreement</h3>
+          <h4>Screen: FL-76 &middot; Step 3/4</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider scrolls through agreement</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Checks "I agree" checkbox</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Taps "Sign via DocuSign" — webview opens</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Signs on DocuSign &rarr; callback &rarr; Step 4</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Agreement is scrollable, not a PDF download</li>
+            <li>Checkbox + CTA are both required (legal compliance)</li>
+            <li>DocuSign opens in-app webview, not external browser</li>
+            <li>On DocuSign callback: auto-advance to next step</li>
+            <li>Keep it short visually — riders won't read 10 pages</li>
+          </ul>
+        </div>
+
+        <div id="ann-pending" class="ann">
+          <h3>6. Pending Approval</h3>
+          <h4>Screen: FL-76</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">All 4 steps complete &rarr; application submitted</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Background verification runs async (24-48h)</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Store manager reviews + approves</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Push notification: "You're approved!"</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">Rider opens app &rarr; lands on Shift Home</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>This is a <strong>dead-end screen</strong> — rider can only wait</li>
+            <li>Show checklist of what's done + what's pending</li>
+            <li>Estimated time: "Usually 24-48 hours"</li>
+            <li>No logout button needed — session persists</li>
+            <li>Pull-to-refresh to check status</li>
+            <li>Push notification on approval (high priority)</li>
+          </ul>
+          <div class="note">If BGV fails, show "Verification issue — contact support" with WhatsApp link. Don't show rejection details.</div>
+        </div>
+
+        <div id="ann-shift-home" class="ann">
+          <h3>7. Shift Home (Main Screen)</h3>
+          <h4>Screen: FL-77</h4>
+          <h4>Purpose</h4>
+          <p>The rider's home base. Shows shift status, hours progress, quick stats, and the primary CTA: "Scan QR to get orders."</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider opens app / returns from delivery</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Sees: shift window, mandatory blocks, hours bar</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Primary action: <strong>Scan QR</strong> to mark "ready for orders"</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Secondary info: deliveries, earnings, cash in hand</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li><strong>Hours progress bar</strong> — the most important element. Rider knows exactly where they stand.</li>
+            <li><strong>Mandatory blocks</strong> — red dots + Done/Active/Later status. Rider sees at a glance if they've met requirements.</li>
+            <li><strong>Cash in hand</strong> — amber when approaching threshold, red when blocked</li>
+            <li><strong>Tip card</strong> — soft nudge for distribution constraints. Not a penalty warning, a helpful tip.</li>
+            <li><strong>QR button</strong> — BIG, yellow, unmissable. This is THE action.</li>
+            <li>Bottom nav: 3 tabs only. Shift (home), Earnings, Profile.</li>
+          </ul>
+          <div class="note">If rider hasn't checked in yet, the shift card shows "Not Checked In" state with QR CTA even more prominent. No stats shown until checked in.</div>
+        </div>
+
+        <div id="ann-qr-scan" class="ann">
+          <h3>8. QR Scan</h3>
+          <h4>Screen: FL-78</h4>
+          <h4>Purpose</h4>
+          <p>QR scan = "I'm physically at the store and ready." This is the check-in mechanism AND the order-readiness signal.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Camera opens with QR frame overlay</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Rider points at store QR code</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Scan success &rarr; haptic feedback + chime</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>First scan of day</strong>: also triggers selfie + uniform check</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">&rarr; Ready State (waiting for assignment)</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Dark background — camera dominates</li>
+            <li>Animated scan line gives feedback that scanner is active</li>
+            <li>Corner brackets show where to aim</li>
+            <li>Torch toggle for dark stores</li>
+            <li>Gallery option: fallback if camera has issues</li>
+          </ul>
+          <div class="note">First scan of the day triggers: (1) selfie capture, (2) bags/t-shirt verification (photo). These happen AFTER successful QR scan, before entering Ready state.</div>
+        </div>
+
+        <div id="ann-ready" class="ann">
+          <h3>9. Ready State</h3>
+          <h4>Screen: FL-78</h4>
+          <h4>Purpose</h4>
+          <p>Rider has scanned QR. They're in the assignment queue. Now they wait.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider waits at store. Screen shows "Waiting for Order"</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Assignment engine matches order &rarr; push notification</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">&rarr; Order Assigned screen (auto-navigates)</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Alternatively: rider can "Take a Break" (leaves queue)</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Big green checkmark with pulse animation — "you're good"</li>
+            <li><strong>Queue position</strong> — rider knows they're #2 in line (FIFO transparency)</li>
+            <li>Idle time shown — used for tiebreak in assignment</li>
+            <li>"Take a Break" button is secondary (outline) — not the primary action</li>
+            <li>No way to leave this screen except: get assigned, take break, or check out</li>
+          </ul>
+          <div class="note">Keep-alive: app pings server every 30s. If rider's phone dies or they leave app for >5 min, auto-mark as "away" and remove from queue.</div>
+        </div>
+
+        <div id="ann-assigned" class="ann">
+          <h3>10. Order Assigned</h3>
+          <h4>Screen: FL-79</h4>
+          <h4>Purpose</h4>
+          <p>Order has been assigned. Rider sees what to pick up, where to deliver, how much they'll earn. One action: "Pick Up & Navigate."</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Push notification + screen auto-opens</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Rider sees: items, distance, ETA, payout, COD status</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Rider picks items from store shelf / counter</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Taps "Pick Up & Navigate" &rarr; Active Delivery</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li><strong>Green header</strong> — visual urgency, this is an active assignment</li>
+            <li>3 key numbers up top: distance, ETA, payout. Rider's decision info.</li>
+            <li>Items list with checkboxes — rider verifies they have everything</li>
+            <li>COD badge is prominent (amber). Rider must know to collect cash.</li>
+            <li>Customer address visible but not full detail yet</li>
+            <li>No "reject" button — assignment is locked. (V1 decision)</li>
+          </ul>
+          <div class="note">V1: No reject/decline. Assignment is final. If there's an issue, rider contacts store manager. V2 may add decline with penalty.</div>
+        </div>
+
+        <div id="ann-active-delivery" class="ann">
+          <h3>11. Active Delivery</h3>
+          <h4>Screen: FL-79</h4>
+          <h4>Purpose</h4>
+          <p>Rider is en route. Map + key info + actions (arrived, call, navigate).</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Map shows route to customer</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Rider follows navigation (Google Maps deep link)</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Arrives &rarr; taps "Arrived"</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">&rarr; Proof of Delivery screen</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Map takes top 50% — rider needs visual route</li>
+            <li>Distance + ETA overlay on map (bottom-left)</li>
+            <li>3 bottom buttons: <strong>Arrived</strong> (primary), Call, Navigate</li>
+            <li>Call: opens phone dialer with customer number</li>
+            <li>Navigate: deep links to Google Maps with destination</li>
+            <li>Order card below map: order ID, customer, items, COD status</li>
+            <li>Must work one-handed while riding (big touch targets)</li>
+          </ul>
+          <div class="note">GPS tracking: app sends location every 15s while on delivery. Used for ETA updates to customer and for distance calculation.</div>
+        </div>
+
+        <div id="ann-pod" class="ann">
+          <h3>12. Proof of Delivery</h3>
+          <h4>Screen: FL-79</h4>
+          <h4>Purpose</h4>
+          <p>Rider confirms delivery + collects COD. Two things happen on this screen: payment collection and delivery proof.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">If COD: collect cash amount, tap "Cash" or "Paid Online"</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Delivery proof: photo OR customer OTP (one required)</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Tap "Complete Delivery"</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">&rarr; Back to Ready state (if still on shift) or Shift Home</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>COD section is top and prominent — rider must collect first</li>
+            <li>"Cash" vs "Paid Online" toggle — clear choice</li>
+            <li>Delivery proof: photo of package at door OR 4-digit OTP from customer</li>
+            <li>OTP shows as "verified" state (green) when customer shares it</li>
+            <li>"Complete Delivery" is final — cannot undo</li>
+          </ul>
+          <div class="note">If COD amount is wrong (customer disputes), rider should contact manager. V2: add "Amount dispute" flow.</div>
+        </div>
+
+        <div id="ann-batch-assigned" class="ann">
+          <h3>13. Batch Assigned</h3>
+          <h4>Screen: FL-80</h4>
+          <h4>Purpose</h4>
+          <p>Rider gets a batch of 2-3 orders. Needs to see: total route, per-stop details, combined payout.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Assignment: "2 Orders — 3 Segments" (batch notification)</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Rider sees route with stops in sequence</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Each stop: customer, address, items, COD status</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Taps "Start Route" &rarr; navigates to Stop 1</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Green header with "BATCH ORDER" label — visually distinct from single order</li>
+            <li>Segments count shown (relates to pay: 2 orders = 3 segments)</li>
+            <li>Stop cards with left border: current (amber), upcoming (green), done (grey)</li>
+            <li>Each stop shows: customer name, COD/Prepaid badge, distance, items</li>
+            <li>Combined stats: total distance, total ETA, total payout</li>
+          </ul>
+          <div class="note">Batch sequence is optimized by the system (shortest path). Rider follows the suggested order. V2: allow rider to reorder stops.</div>
+        </div>
+
+        <div id="ann-batch-active" class="ann">
+          <h3>14. Batch Navigation</h3>
+          <h4>Screen: FL-80</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Map shows waypoint route (multi-stop)</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Current stop highlighted (1/2 badge)</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Arrives at Stop 1 &rarr; taps "Arrived" &rarr; Collect + POD for this stop</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Auto-advances to Stop 2</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">After last stop &rarr; back to Ready state</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Stop counter badge on map (1/2, 2/2)</li>
+            <li>Current stop card below map with customer details</li>
+            <li>"Next" preview: rider knows what's coming</li>
+            <li>Each stop has independent COD collection + POD</li>
+            <li>If one stop fails (customer unavailable), other stops continue</li>
+          </ul>
+        </div>
+
+        <div id="ann-cod-collect" class="ann">
+          <h3>15. COD Collection</h3>
+          <h4>Screen: FL-81</h4>
+          <h4>Purpose</h4>
+          <p>Dedicated screen for cash collection. Big amount, quick-select buttons, running balance shown.</p>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Amount to collect: HUGE font, center screen. No ambiguity.</li>
+            <li>Quick-select: "Exact", common denominations (100, 200)</li>
+            <li>Cash-in-hand balance: before and after this collection</li>
+            <li>Confirm button with amount repeated: "Confirm &#8377;72 Collected"</li>
+          </ul>
+          <div class="note">If customer pays partial or wrong amount, rider enters actual amount received. System flags discrepancy for manager review.</div>
+        </div>
+
+        <div id="ann-cod-threshold" class="ann">
+          <h3>16. COD Threshold Block</h3>
+          <h4>Screen: FL-81</h4>
+          <h4>Purpose</h4>
+          <p><strong>Hard block.</strong> Rider cannot accept new orders until they settle cash above the threshold.</p>
+          <hr class="a-divider">
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider completes delivery, cash goes above threshold</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">This screen appears — cannot dismiss</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Rider taps "Settle Now" &rarr; Settlement screen</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">After settlement confirmed &rarr; back to Ready state</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li><strong>Red status bar</strong> — visual urgency</li>
+            <li>Warning icon, clear language: "Settle Cash First"</li>
+            <li>Shows exact amounts: in hand vs threshold</li>
+            <li>Single action: "Settle Now" — no escape</li>
+            <li>Also triggers on: login with unsettled COD, logout attempt with cash</li>
+          </ul>
+          <div class="note">This is a BLOCKING screen. No bottom nav, no back button. Rider must settle. This is the #1 cash management control.</div>
+        </div>
+
+        <div id="ann-cod-settle" class="ann">
+          <h3>17. COD Settlement</h3>
+          <h4>Screen: FL-81</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider sees total cash to settle</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Selects method: GPay, Bank, or Cash to Manager</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">For GPay: deep links to GPay with store UPI + amount</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Enters transaction ID after payment</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">Submits &rarr; pending manager approval</div></div>
+          <div class="flow-step"><div class="flow-num">6</div><div class="flow-text">Balance resets to 0 &rarr; rider unblocked</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>3 settlement options, radio-style selection</li>
+            <li>GPay is default/recommended (fastest verification)</li>
+            <li>"Cash to Manager" = in-person handover, needs manager QR confirmation</li>
+            <li>Transaction ID field: for GPay/bank, manager verifies later</li>
+            <li>Optimistic: balance resets immediately, manager approves async</li>
+          </ul>
+        </div>
+
+        <div id="ann-earnings-today" class="ann">
+          <h3>18. Earnings — Today</h3>
+          <h4>Screen: FL-83</h4>
+          <h4>Purpose</h4>
+          <p>Full transparency on how today's pay is calculated. Rider trusts the system when they can see every line item.</p>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Big number at top: total net earnings</li>
+            <li>Deliveries + hours worked as context</li>
+            <li>Breakdown: each component of the formula, line by line</li>
+            <li>Penalties in red with descriptions</li>
+            <li>Batch bonus highlighted in green</li>
+            <li>Cash status section: collected vs settled vs in hand</li>
+            <li>Tab toggle: Today / Weekly</li>
+          </ul>
+          <div class="note">Every number must be explainable. If rider asks "why ₹213 for distance?", they should be able to see: 14.2 km × ₹15/km = ₹213.</div>
+        </div>
+
+        <div id="ann-earnings-weekly" class="ann">
+          <h3>19. Earnings — Weekly</h3>
+          <h4>Screen: FL-83</h4>
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Bar chart: daily earnings, 7 days. Today highlighted in yellow.</li>
+            <li>Total + deliveries + hours for the week</li>
+            <li>Settlement history: when, how much, method, status</li>
+            <li>"Unsettled" amount shown if any cash pending</li>
+            <li>Future days shown as empty bars (Sunday = day off)</li>
+          </ul>
+        </div>
+
+        <div id="ann-rate-card" class="ann">
+          <h3>20. Rate Card</h3>
+          <h4>Screen: FL-84</h4>
+          <h4>Purpose</h4>
+          <p>Rider understands exactly how their pay works. Builds trust. Reduces disputes.</p>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Formula shown in monospace, like an equation</li>
+            <li>Current rates in a clean table</li>
+            <li>Batch bonus rules explained with concrete examples</li>
+            <li>Example calculation: real numbers, step by step</li>
+            <li>"Full-time rates" badge — rider knows which tier they're on</li>
+            <li>Read-only — rider can't change anything here</li>
+          </ul>
+        </div>
+
+        <div id="ann-profile" class="ann">
+          <h3>21. Profile</h3>
+          <h4>Screen: FL-85</h4>
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Photo + name + ID + type + status at top</li>
+            <li>Menu-style navigation to sub-sections</li>
+            <li>Referral link with bonus amount (growth lever)</li>
+            <li>"Check Out & End Shift" is red/outline — serious action, bottom of screen</li>
+            <li>Edit profile: opens editable version of profile setup</li>
+          </ul>
+        </div>
+
+        <div id="ann-checkout" class="ann">
+          <h3>22. Check-out / End Shift</h3>
+          <h4>Screen: FL-82</h4>
+          <h4>Workflow</h4>
+          <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Rider taps "Check Out"</div></div>
+          <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">If COD balance > 0: blocked, redirected to settle</div></div>
+          <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">If settled: shift summary shown</div></div>
+          <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Hours, deliveries, mandatory adherence, penalties, net pay</div></div>
+          <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">Confirm &rarr; checked out. App goes to login-ready state.</div></div>
+          <hr class="a-divider">
+          <h4>Design Notes</h4>
+          <ul>
+            <li>Shift summary: today's scorecard</li>
+            <li>Mandatory window adherence: green check or red X per block</li>
+            <li>COD status must be green (settled) before confirm is enabled</li>
+            <li>Red "Confirm Check-out" button — deliberate action</li>
+            <li>"Cancel" link to go back to shift</li>
+          </ul>
+          <div class="note">If rider hasn't completed 10h minimum, show warning: "You've only completed 9.8h. Leaving early may affect your record." But don't block — they can still check out.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(name) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Show target
+  const screen = document.getElementById('screen-' + name);
+  if (screen) screen.classList.add('active');
+
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.target.closest('.nav-item')?.classList.add('active');
+
+  // Show annotation
+  document.querySelectorAll('.ann').forEach(a => a.style.display = 'none');
+  const ann = document.getElementById('ann-' + name);
+  if (ann) ann.style.display = 'block';
+}
+
+// Init: show login annotations
+document.querySelectorAll('.ann').forEach(a => a.style.display = 'none');
+document.getElementById('ann-login').style.display = 'block';
+</script>
+
+</body>
+</html>
